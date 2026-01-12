@@ -2,7 +2,7 @@
   "name": "@motioneffector/stats",
   "version": "0.1.0",
   "description": "TypeScript library for RPG stats, dice rolling, and stat checks with full D&D 5e-style mechanics",
-  "author": "MotionEffector",
+  "author": "motioneffector",
   "license": "MIT",
   "repository": {
     "type": "git",
