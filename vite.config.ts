@@ -3,14 +3,20 @@ import dts from 'vite-plugin-dts'
 import { resolve } from 'path'
 
 export default defineConfig({
-  plugins: [
-    dts({ include: ['src'] })
-  ],
+  plugins: [dts({ include: ['src'] })],
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
+      entry: {
+        index: resolve(__dirname, 'src/index.ts'),
+        testing: resolve(__dirname, 'src/testing.ts'),
+      },
       formats: ['es'],
-      fileName: 'index'
-    }
-  }
+    },
+    rollupOptions: {
+      external: [],
+    },
+  },
+  test: {
+    globals: true,
+  },
 })
