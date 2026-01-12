@@ -3,6 +3,7 @@ import { createStatBlock } from './stat-block'
 import { check, createDerivedStat, saveThrow, contest, rollTable } from './checks-and-utils'
 import { createStatTemplate } from './stat-template'
 import { ValidationError, CircularDependencyError, VersionError } from '../errors'
+import type { StatChangeEvent } from '../types'
 
 // Helper to mock Math.random with predictable sequence
 function mockRandomSequence(values: number[]) {
@@ -104,12 +105,22 @@ describe('check(statBlock, statName, options)', () => {
       const stats = createStatBlock({ str: { base: 10 } })
       const result = check(stats, 'str', { dice: '2d6', difficulty: 10 })
       expect(result.rolls.length).toBeGreaterThanOrEqual(2)
+      // Verify it's actually d6 dice (between 1-6)
+      result.rolls.forEach(roll => {
+        expect(roll).toBeGreaterThanOrEqual(1)
+        expect(roll).toBeLessThanOrEqual(6)
+      })
     })
 
     it('check(stats, "str", { dice: "3d6", difficulty: 12 }) uses 3d6', () => {
       const stats = createStatBlock({ str: { base: 10 } })
       const result = check(stats, 'str', { dice: '3d6', difficulty: 12 })
       expect(result.rolls.length).toBeGreaterThanOrEqual(3)
+      // Verify it's actually d6 dice (between 1-6)
+      result.rolls.forEach(roll => {
+        expect(roll).toBeGreaterThanOrEqual(1)
+        expect(roll).toBeLessThanOrEqual(6)
+      })
     })
   })
 
@@ -894,7 +905,7 @@ describe('events', () => {
       stats.onChange(callback)
       stats.set('strength', 15)
       // Should fire twice: once for strength, once for carryCapacity
-      expect(callback.mock.calls.length).toBeGreaterThanOrEqual(1)
+      expect(callback).toHaveBeenCalledTimes(2)
     })
 
     it('event.stat is the derived stat name', () => {
@@ -935,13 +946,13 @@ describe('events', () => {
     })
 
     it('no built-in batching mechanism', () => {
-      // Just verify individual changes fire individually
+      // Verify individual changes fire individually (no batching)
       const stats = createStatBlock({ strength: { base: 10 }, dexterity: { base: 10 } })
       const callback = vi.fn()
       stats.onChange(callback)
       stats.set('strength', 15)
       stats.set('dexterity', 15)
-      expect(callback.mock.calls.length).toBeGreaterThanOrEqual(2)
+      expect(callback).toHaveBeenCalledTimes(2)
     })
   })
 })
