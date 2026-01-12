@@ -1,25 +1,71 @@
 {
   "name": "@motioneffector/stats",
-  "version": "0.0.1",
+  "version": "0.1.0",
+  "description": "TypeScript library for RPG stats, dice rolling, and stat checks with full D&D 5e-style mechanics",
+  "author": "motioneffector",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/motioneffector/stats"
+  },
+  "homepage": "https://github.com/motioneffector/stats#readme",
+  "bugs": {
+    "url": "https://github.com/motioneffector/stats/issues"
+  },
+  "keywords": [
+    "rpg",
+    "dice",
+    "dice-roller",
+    "dice-notation",
+    "stats",
+    "d20",
+    "tabletop",
+    "game-mechanics",
+    "dungeons-and-dragons",
+    "dnd",
+    "5e",
+    "typescript"
+  ],
   "type": "module",
   "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./testing": {
+      "import": "./dist/testing.js",
+      "types": "./dist/testing.d.ts"
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
   ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "test": "vitest"
+    "build": "tsc && vite build",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "lint": "eslint 'src/**/*.ts' --ignore-pattern '**/*.test.ts'",
+    "format": "prettier --write src",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run test:run && npm run build"
   },
   "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0",
     "typescript": "^5.7.2",
+    "typescript-eslint": "^8.0.0",
     "vite": "^6.0.7",
     "vite-plugin-dts": "^4.4.0",
     "vitest": "^2.1.8"
