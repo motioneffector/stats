@@ -1,4 +1,4 @@
-import { ValidationError } from '../errors'
+import { ValidationError, VersionError } from '../errors'
 import type {
   StatDefinitions,
   StatBlock,
@@ -24,6 +24,7 @@ type StatData = {
   max?: number
   modifiers: InternalModifier[]
   isDerived: boolean
+  derivedFormula?: (statBlock: StatBlock) => number
 }
 
 /**
@@ -89,6 +90,13 @@ export function createStatBlock(
   // Restore from JSON if provided
   if (options?.fromJSON) {
     const data = options.fromJSON
+
+    // Validate version (default to 1 if missing for backwards compatibility)
+    const version = data.version ?? 1
+    if (version !== 1) {
+      throw new VersionError(`Unsupported version: ${version}`, version)
+    }
+
     for (const [name, base] of Object.entries(data.stats)) {
       if (stats.has(name)) {
         const stat = stats.get(name)!
@@ -119,6 +127,16 @@ export function createStatBlock(
   function calculateEffectiveValue(name: string): number {
     const stat = stats.get(name)
     if (!stat) return 0
+
+    // Handle derived stats
+    if (stat.isDerived && stat.derivedFormula) {
+      try {
+        return stat.derivedFormula(publicAPI)
+      } catch (error) {
+        console.error(`Error calculating derived stat "${name}":`, error)
+        return 0
+      }
+    }
 
     let value = stat.base
 
@@ -174,6 +192,25 @@ export function createStatBlock(
     }
   }
 
+  function captureDerivedStatValues(): Map<string, number> {
+    const values = new Map<string, number>()
+    for (const [name, stat] of stats.entries()) {
+      if (stat.isDerived) {
+        values.set(name, calculateEffectiveValue(name))
+      }
+    }
+    return values
+  }
+
+  function fireDerivedStatEvents(oldValues: Map<string, number>): void {
+    for (const [name, oldValue] of oldValues.entries()) {
+      const newValue = calculateEffectiveValue(name)
+      if (oldValue !== newValue) {
+        fireChangeEvent(name, oldValue, newValue, false, false)
+      }
+    }
+  }
+
   function get(statName: string): number | undefined {
     if (!stats.has(statName)) return undefined
     return calculateEffectiveValue(statName)
@@ -194,7 +231,7 @@ export function createStatBlock(
     }
 
     const oldValue = calculateEffectiveValue(statName)
-    const oldBase = stat.base
+    const derivedOldValues = captureDerivedStatValues()
 
     stat.base = clampValue(value, stat.min, stat.max)
 
@@ -202,6 +239,7 @@ export function createStatBlock(
 
     if (oldValue !== newValue) {
       fireChangeEvent(statName, oldValue, newValue, true, false)
+      fireDerivedStatEvents(derivedOldValues)
     }
 
     return stat.base
@@ -217,11 +255,14 @@ export function createStatBlock(
     }
 
     const oldValue = calculateEffectiveValue(statName)
+    const derivedOldValues = captureDerivedStatValues()
+
     stat.base = clampValue(stat.base + delta, stat.min, stat.max)
     const newValue = calculateEffectiveValue(statName)
 
     if (oldValue !== newValue) {
       fireChangeEvent(statName, oldValue, newValue, true, false)
+      fireDerivedStatEvents(derivedOldValues)
     }
 
     return stat.base
@@ -245,6 +286,7 @@ export function createStatBlock(
     }
 
     const oldValue = calculateEffectiveValue(statName)
+    const derivedOldValues = captureDerivedStatValues()
 
     // Check if modifier with this source already exists
     const existingIndex = stat.modifiers.findIndex(m => m.source === modifier.source)
@@ -286,6 +328,7 @@ export function createStatBlock(
 
     if (oldValue !== newValue) {
       fireChangeEvent(statName, oldValue, newValue, false, true)
+      fireDerivedStatEvents(derivedOldValues)
     }
 
     return {
@@ -301,6 +344,7 @@ export function createStatBlock(
     if (!stat) return false
 
     const oldValue = calculateEffectiveValue(statName)
+    const derivedOldValues = captureDerivedStatValues()
     const initialLength = stat.modifiers.length
 
     stat.modifiers = stat.modifiers.filter(m => m.source !== source)
@@ -311,6 +355,7 @@ export function createStatBlock(
       const newValue = calculateEffectiveValue(statName)
       if (oldValue !== newValue) {
         fireChangeEvent(statName, oldValue, newValue, false, true)
+        fireDerivedStatEvents(derivedOldValues)
       }
     }
 
@@ -336,14 +381,17 @@ export function createStatBlock(
       const stat = stats.get(statName)
       if (stat) {
         const oldValue = calculateEffectiveValue(statName)
+        const derivedOldValues = captureDerivedStatValues()
         count = stat.modifiers.length
         stat.modifiers = []
         const newValue = calculateEffectiveValue(statName)
         if (oldValue !== newValue && count > 0) {
           fireChangeEvent(statName, oldValue, newValue, false, true)
+          fireDerivedStatEvents(derivedOldValues)
         }
       }
     } else {
+      const derivedOldValues = captureDerivedStatValues()
       for (const [name, stat] of stats.entries()) {
         const oldValue = calculateEffectiveValue(name)
         const modCount = stat.modifiers.length
@@ -354,6 +402,8 @@ export function createStatBlock(
           fireChangeEvent(name, oldValue, newValue, false, true)
         }
       }
+      // Fire derived stat events once after all modifiers cleared
+      fireDerivedStatEvents(derivedOldValues)
     }
 
     return count
@@ -371,6 +421,7 @@ export function createStatBlock(
 
   function tick(): string[] {
     const expired: string[] = []
+    const derivedOldValues = captureDerivedStatValues()
 
     for (const [name, stat] of stats.entries()) {
       const toRemove: string[] = []
@@ -394,6 +445,9 @@ export function createStatBlock(
         }
       }
     }
+
+    // Fire derived stat events after all tick processing
+    fireDerivedStatEvents(derivedOldValues)
 
     return expired
   }
@@ -471,7 +525,17 @@ export function createStatBlock(
     }
   }
 
-  return {
+  function addDerivedStat(name: string, formula: (statBlock: StatBlock) => number): void {
+    // Track dependencies to update derived stats when sources change
+    stats.set(name, {
+      base: 0,
+      modifiers: [],
+      isDerived: true,
+      derivedFormula: formula,
+    })
+  }
+
+  const publicAPI: StatBlock = {
     get,
     getBase,
     set,
@@ -491,4 +555,10 @@ export function createStatBlock(
     isDerived,
     toJSON,
   }
+
+  // Add internal methods and properties
+  ;(publicAPI as any)._addDerivedStat = addDerivedStat
+  ;(publicAPI as any)._modifierFormula = modifierFormula
+
+  return publicAPI
 }
