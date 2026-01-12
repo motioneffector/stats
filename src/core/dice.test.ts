@@ -206,7 +206,7 @@ describe('roll(notation)', () => {
 
   describe('keep highest (kh)', () => {
     it('roll("4d6kh3") keeps highest 3 of 4 rolls', () => {
-      mockRandomSequence([0.0, 0.33, 0.66, 0.999]) // 1, 3, 5, 6
+      mockRandomSequence([0.0, 0.4, 0.75, 0.9]) // 1, 3, 5, 6
       const result = roll('4d6kh3')
       expect(result.rolls).toHaveLength(4)
       expect(result.kept).toHaveLength(3)
@@ -229,20 +229,20 @@ describe('roll(notation)', () => {
     })
 
     it('result.rolls contains all 4 original rolls', () => {
-      mockRandomSequence([0.0, 0.33, 0.66, 0.999])
+      mockRandomSequence([0.0, 0.4, 0.75, 0.9])
       const result = roll('4d6kh3')
       expect(result.rolls).toHaveLength(4)
     })
 
     it('result.kept contains only the 3 highest values', () => {
-      mockRandomSequence([0.0, 0.33, 0.66, 0.999])
+      mockRandomSequence([0.0, 0.4, 0.75, 0.9])
       const result = roll('4d6kh3')
       expect(result.kept).toHaveLength(3)
       expect(result.kept).toEqual([3, 5, 6])
     })
 
     it('result.total equals sum of result.kept', () => {
-      mockRandomSequence([0.0, 0.33, 0.66, 0.999])
+      mockRandomSequence([0.0, 0.4, 0.75, 0.9])
       const result = roll('4d6kh3')
       const sum = result.kept.reduce((a, b) => a + b, 0)
       expect(result.total).toBe(sum)
@@ -251,7 +251,7 @@ describe('roll(notation)', () => {
 
   describe('keep lowest (kl)', () => {
     it('roll("4d6kl3") keeps lowest 3 of 4 rolls', () => {
-      mockRandomSequence([0.0, 0.33, 0.66, 0.999]) // 1, 3, 5, 6
+      mockRandomSequence([0.0, 0.4, 0.75, 0.9]) // 1, 3, 5, 6
       const result = roll('4d6kl3')
       expect(result.kept).toEqual([1, 3, 5])
       expect(result.total).toBe(9)
@@ -272,7 +272,7 @@ describe('roll(notation)', () => {
     })
 
     it('result.kept contains only the lowest values', () => {
-      mockRandomSequence([0.0, 0.33, 0.66, 0.999])
+      mockRandomSequence([0.0, 0.4, 0.75, 0.9])
       const result = roll('4d6kl2')
       expect(result.kept).toEqual([1, 3])
     })
@@ -280,7 +280,7 @@ describe('roll(notation)', () => {
 
   describe('drop highest (dh)', () => {
     it('roll("4d6dh1") drops highest 1, equivalent to kl3', () => {
-      mockRandomSequence([0.0, 0.33, 0.66, 0.999]) // 1, 3, 5, 6
+      mockRandomSequence([0.0, 0.4, 0.75, 0.9]) // 1, 3, 5, 6
       const result = roll('4d6dh1')
       expect(result.kept).toEqual([1, 3, 5])
       expect(result.total).toBe(9)
@@ -294,7 +294,7 @@ describe('roll(notation)', () => {
     })
 
     it('result.kept excludes the dropped dice', () => {
-      mockRandomSequence([0.0, 0.33, 0.66, 0.999])
+      mockRandomSequence([0.0, 0.4, 0.75, 0.9])
       const result = roll('4d6dh1')
       expect(result.kept).not.toContain(6)
     })
@@ -302,7 +302,7 @@ describe('roll(notation)', () => {
 
   describe('drop lowest (dl)', () => {
     it('roll("4d6dl1") drops lowest 1, equivalent to kh3', () => {
-      mockRandomSequence([0.0, 0.33, 0.66, 0.999]) // 1, 3, 5, 6
+      mockRandomSequence([0.0, 0.4, 0.75, 0.9]) // 1, 3, 5, 6
       const result = roll('4d6dl1')
       expect(result.kept).toEqual([3, 5, 6])
       expect(result.total).toBe(14)
@@ -360,7 +360,7 @@ describe('roll(notation)', () => {
 
   describe('basic exploding', () => {
     it('roll("1d6!") rerolls and adds when rolling max value (6)', () => {
-      mockRandomSequence([0.999, 0.3]) // 6, then 3
+      mockRandomSequence([0.999, 0.4]) // 6, then 3
       const result = roll('1d6!')
       expect(result.total).toBe(9)
       expect(result.rolls).toContain(6)
@@ -374,19 +374,19 @@ describe('roll(notation)', () => {
     })
 
     it('exploding can chain: rolling 6, then 6, then 3 = total of 15', () => {
-      mockRandomSequence([0.999, 0.999, 0.3]) // 6, 6, 3
+      mockRandomSequence([0.999, 0.999, 0.4]) // 6, 6, 3
       const result = roll('1d6!')
       expect(result.total).toBe(15)
     })
 
     it('result.rolls includes all rolls including explosions', () => {
-      mockRandomSequence([0.999, 0.3])
+      mockRandomSequence([0.999, 0.4])
       const result = roll('1d6!')
       expect(result.rolls.length).toBeGreaterThan(1)
     })
 
     it('result.rolls.length can exceed original dice count due to explosions', () => {
-      mockRandomSequence([0.999, 0.999, 0.3])
+      mockRandomSequence([0.999, 0.999, 0.4])
       const result = roll('1d6!')
       expect(result.rolls.length).toBeGreaterThan(1)
     })
@@ -414,20 +414,20 @@ describe('roll(notation)', () => {
 
   describe('exploding with other modifiers', () => {
     it('roll("1d6!+3") adds modifier after all explosions resolved', () => {
-      mockRandomSequence([0.999, 0.3]) // 6, 3 = 9
+      mockRandomSequence([0.999, 0.4]) // 6, 3 = 9
       const result = roll('1d6!+3')
       expect(result.total).toBe(12)
       expect(result.modifier).toBe(3)
     })
 
     it('roll("2d6!") each die can explode independently', () => {
-      mockRandomSequence([0.999, 0.3, 0.999, 0.5]) // First die: 6, 3. Second die: 6, 4
+      mockRandomSequence([0.999, 0.4, 0.999, 0.5]) // First die: 6, 3. Second die: 6, 4
       const result = roll('2d6!')
       expect(result.total).toBe(19) // 9 + 10
     })
 
     it('roll("4d6!kh3") exploding happens before keep/drop selection', () => {
-      mockRandomSequence([0.1, 0.999, 0.3, 0.5, 0.7]) // 1, 6, 3, 4, 5
+      mockRandomSequence([0.1, 0.999, 0.4, 0.5, 0.7]) // 1, 6, 3, 4, 5
       const result = roll('4d6!kh3')
       // Die 1: 1, Die 2: 6->3=9, Die 3: 4, Die 4: 5
       // Keep highest 3: 9, 5, 4 = 18
@@ -477,7 +477,7 @@ describe('roll(notation)', () => {
     })
 
     it('roll("1d6r>4") rerolls values greater than 4 (rerolls 5 and 6)', () => {
-      mockRandomSequence([0.8, 0.3]) // 5, then 3
+      mockRandomSequence([0.8, 0.4]) // 5, then 3
       const result = roll('1d6r>4')
       expect(result.total).toBe(3)
     })
@@ -538,7 +538,7 @@ describe('roll(notation)', () => {
 
   describe('keep/drop with numeric modifiers', () => {
     it('roll("4d6kh3+2") keeps highest 3, then adds 2', () => {
-      mockRandomSequence([0.0, 0.33, 0.66, 0.999]) // 1, 3, 5, 6
+      mockRandomSequence([0.0, 0.4, 0.75, 0.9]) // 1, 3, 5, 6
       const result = roll('4d6kh3+2')
       expect(result.total).toBe(14 + 2)
     })
@@ -550,7 +550,7 @@ describe('roll(notation)', () => {
     })
 
     it('roll("4d6dl1-2") drops lowest, then subtracts 2', () => {
-      mockRandomSequence([0.0, 0.33, 0.66, 0.999])
+      mockRandomSequence([0.0, 0.4, 0.75, 0.9])
       const result = roll('4d6dl1-2')
       expect(result.total).toBe(14 - 2)
     })
@@ -558,7 +558,7 @@ describe('roll(notation)', () => {
 
   describe('exploding with keep/drop', () => {
     it('roll("4d6!kh3") exploding resolves first, then keep highest 3', () => {
-      mockRandomSequence([0.1, 0.999, 0.3, 0.5, 0.7]) // 1, 6->3=9, 4, 5
+      mockRandomSequence([0.1, 0.999, 0.4, 0.5, 0.7]) // 1, 6->3=9, 4, 5
       const result = roll('4d6!kh3')
       expect(result.rolls.length).toBeGreaterThan(4)
       expect(result.kept).toHaveLength(3)
@@ -579,14 +579,14 @@ describe('roll(notation)', () => {
 
   describe('exploding with reroll', () => {
     it('roll("1d6!r1") order: roll → explode → reroll', () => {
-      mockRandomSequence([0.999, 0.0, 0.5]) // 6, 1, 4
+      mockRandomSequence([0.999, 0.0, 0.6]) // 6, 1, 4
       const result = roll('1d6!r1')
       // First roll: 6 (explodes), second roll: 1 (rerolls), third roll: 4
       expect(result.total).toBe(10) // 6 + 4
     })
 
     it('explosions happen on max value, then reroll conditions checked', () => {
-      mockRandomSequence([0.999, 0.0, 0.5])
+      mockRandomSequence([0.999, 0.0, 0.6])
       const result = roll('1d6!r1')
       expect(result.rolls).toContain(6)
       expect(result.rolls).toContain(1)
@@ -602,13 +602,13 @@ describe('roll(notation)', () => {
 
   describe('complex combinations', () => {
     it('roll("4d6!kh3+2") explode, keep highest 3, add 2', () => {
-      mockRandomSequence([0.1, 0.999, 0.3, 0.5, 0.7]) // 1, 6->3=9, 4, 5
+      mockRandomSequence([0.1, 0.999, 0.4, 0.5, 0.7]) // 1, 6->3=9, 4, 5
       const result = roll('4d6!kh3+2')
       expect(result.total).toBe(18 + 2)
     })
 
     it('roll("4d6r1kh3") reroll 1s, then keep highest 3', () => {
-      mockRandomSequence([0.0, 0.5, 0.33, 0.66, 0.999]) // 1->4, 3, 5, 6
+      mockRandomSequence([0.0, 0.6, 0.4, 0.75, 0.9]) // 1->4, 3, 5, 6
       const result = roll('4d6r1kh3')
       expect(result.total).toBe(15) // 6 + 5 + 4
     })
