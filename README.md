@@ -46,7 +46,7 @@ const result = check(hero, 'strength', { difficulty: 15 })
 
 ## Demo
 
-Try the [interactive demo](https://motioneffector.github.io/stats/demo.html) in your browser.
+Try the [interactive demo](https://motioneffector.github.io/stats/) in your browser.
 
 ## API Reference
 
