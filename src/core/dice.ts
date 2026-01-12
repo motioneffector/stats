@@ -305,6 +305,27 @@ function selectKeptDice(
   }
 }
 
+/**
+ * Roll dice using standard RPG notation.
+ *
+ * Supports various dice notation formats including:
+ * - Basic: "1d20", "2d6+3"
+ * - Keep/Drop: "4d6kh3", "2d20kl1"
+ * - Exploding: "1d6!", "3d10!"
+ * - Reroll: "1d20r1", "4d6r<=2"
+ *
+ * @param notation - Dice notation string (e.g., "2d6+3", "4d6kh3")
+ * @param _options - Reserved for future options (currently unused)
+ * @returns Roll result containing total, individual rolls, kept dice, notation, and modifier
+ * @throws {ParseError} If notation is invalid or malformed
+ *
+ * @example
+ * ```typescript
+ * roll("2d6+3")     // Roll 2d6 and add 3
+ * roll("4d6kh3")    // Roll 4d6, keep highest 3
+ * roll("1d20!")     // Roll 1d20 with exploding dice
+ * ```
+ */
 export function roll(notation: string, _options?: RollOptions): RollResult {
   const parsed = parseNotation(notation)
 
