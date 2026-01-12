@@ -1,5 +1,5 @@
 import { createStatBlock } from './stat-block'
-import type { StatTemplate, StatTemplateConfig, StatBlock, StatBlockOptions } from '../types'
+import type { StatTemplate, StatTemplateConfig, StatBlock } from '../types'
 
 /**
  * Creates a reusable stat block template.
@@ -35,14 +35,18 @@ export function createStatTemplate(config: StatTemplateConfig): StatTemplate {
 
       // Apply override if provided
       if (overrides && name in overrides) {
-        base = overrides[name]
+        base = overrides[name]!
       }
 
-      definitions[name] = {
-        base,
-        min: def.min,
-        max: def.max,
+      const statDef: { base: number; min?: number; max?: number } = { base }
+      if (def.min !== undefined) {
+        statDef.min = def.min
       }
+      if (def.max !== undefined) {
+        statDef.max = def.max
+      }
+
+      definitions[name] = statDef
     }
 
     // Warn about unknown overrides

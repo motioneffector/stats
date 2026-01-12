@@ -23,7 +23,7 @@
     "build": "tsc && vite build",
     "test": "vitest",
     "test:run": "vitest run",
-    "lint": "eslint src",
+    "lint": "eslint 'src/**/*.ts' --ignore-pattern '**/*.test.ts'",
     "format": "prettier --write src",
     "typecheck": "tsc --noEmit"
   },

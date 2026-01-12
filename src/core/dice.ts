@@ -52,8 +52,8 @@ function parseNotation(notation: string): ParsedNotation {
     throw new ParseError(`Invalid dice notation: "${notation}"`, notation)
   }
 
-  const countStr = match[1]
-  const sidesStr = match[3]
+  const countStr = match[1]!
+  const sidesStr = match[3]!
 
   // Parse count and sides
   if (countStr.includes('.')) {
@@ -109,7 +109,7 @@ function parseNotation(notation: string): ParsedNotation {
         throw new ParseError('Incomplete modifier', notation)
       }
 
-      const numStr = numMatch[1]
+      const numStr = numMatch[1]!
       if (numStr.includes('.')) {
         throw new ParseError('Modifiers must be integers', notation)
       }
@@ -124,8 +124,8 @@ function parseNotation(notation: string): ParsedNotation {
       pos += 2
       const numMatch = remainder.slice(pos).match(/^(\d+)/)
       if (numMatch) {
-        parsed.keepHighest = parseInt(numMatch[1], 10)
-        pos += numMatch[1].length
+        parsed.keepHighest = parseInt(numMatch[1]!, 10)
+        pos += numMatch[1]!.length
       }
       continue
     }
@@ -135,8 +135,8 @@ function parseNotation(notation: string): ParsedNotation {
       pos += 2
       const numMatch = remainder.slice(pos).match(/^(\d+)/)
       if (numMatch) {
-        parsed.keepLowest = parseInt(numMatch[1], 10)
-        pos += numMatch[1].length
+        parsed.keepLowest = parseInt(numMatch[1]!, 10)
+        pos += numMatch[1]!.length
       }
       continue
     }
@@ -146,8 +146,8 @@ function parseNotation(notation: string): ParsedNotation {
       pos += 2
       const numMatch = remainder.slice(pos).match(/^(\d+)/)
       if (numMatch) {
-        parsed.dropHighest = parseInt(numMatch[1], 10)
-        pos += numMatch[1].length
+        parsed.dropHighest = parseInt(numMatch[1]!, 10)
+        pos += numMatch[1]!.length
       }
       continue
     }
@@ -157,8 +157,8 @@ function parseNotation(notation: string): ParsedNotation {
       pos += 2
       const numMatch = remainder.slice(pos).match(/^(\d+)/)
       if (numMatch) {
-        parsed.dropLowest = parseInt(numMatch[1], 10)
-        pos += numMatch[1].length
+        parsed.dropLowest = parseInt(numMatch[1]!, 10)
+        pos += numMatch[1]!.length
       }
       continue
     }
@@ -176,7 +176,7 @@ function parseNotation(notation: string): ParsedNotation {
       const opMatch = remainder.slice(pos).match(/^(<=|>=|<|>|=)?(\d+)/)
       if (opMatch) {
         const operator = (opMatch[1] || '=') as '=' | '<' | '>' | '<=' | '>='
-        const value = parseInt(opMatch[2], 10)
+        const value = parseInt(opMatch[2]!, 10)
         parsed.rerollConditions.push({ operator, value })
         pos += opMatch[0].length
       } else {
@@ -240,9 +240,10 @@ function rollSingleDie(
   // Handle reroll (only once, on the last roll after explosions)
   if (rerollConditions.length > 0) {
     const lastIndex = rolls.length - 1
-    if (shouldReroll(rolls[lastIndex].value, rerollConditions)) {
-      const originalValue = rolls[lastIndex].value
-      const originalExploded = rolls[lastIndex].exploded
+    const lastRoll = rolls[lastIndex]!
+    if (shouldReroll(lastRoll.value, rerollConditions)) {
+      const originalValue = lastRoll.value
+      const originalExploded = lastRoll.exploded
       const newValue = rollDie(sides)
       // Keep original in history, mark it as rerolled
       rolls[lastIndex] = { value: originalValue, exploded: originalExploded, rerolled: true }
@@ -304,7 +305,7 @@ function selectKeptDice(
   }
 }
 
-export function roll(notation: string, options?: RollOptions): RollResult {
+export function roll(notation: string, _options?: RollOptions): RollResult {
   const parsed = parseNotation(notation)
 
   // Roll all dice
@@ -332,7 +333,7 @@ export function roll(notation: string, options?: RollOptions): RollResult {
 
     // Find if there was a reroll
     for (let i = 0; i < dieRolls.length; i++) {
-      if (dieRolls[i].rerolled) {
+      if (dieRolls[i]!.rerolled) {
         rerollIndex = i
         break
       }
@@ -341,11 +342,11 @@ export function roll(notation: string, options?: RollOptions): RollResult {
     if (rerollIndex >= 0) {
       // Sum all rolls before the rerolled one
       for (let i = 0; i < rerollIndex; i++) {
-        dieValue += dieRolls[i].value
+        dieValue += dieRolls[i]!.value
       }
       // Add the reroll value (which is after the rerolled index)
       if (rerollIndex + 1 < dieRolls.length) {
-        dieValue += dieRolls[rerollIndex + 1].value
+        dieValue += dieRolls[rerollIndex + 1]!.value
       }
     } else {
       // No reroll, sum all rolls (explosions)

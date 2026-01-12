@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return */
+// Note: This file accesses internal properties of StatBlock that aren't part of the public API
+
 import { roll } from './dice'
 import { ValidationError, CircularDependencyError } from '../errors'
 import type {
@@ -62,8 +65,8 @@ export function check(
   if (options.advantage && options.disadvantage) {
     // Cancel out - roll normally
     const result = roll(dice)
-    // Extract individual die values from the roll
-    rolls = result.rolls.map(r => r.value)
+    // Result.rolls already contains the individual die values
+    rolls = result.rolls
     selectedRoll = result.total - result.modifier
   } else if (options.advantage) {
     // Roll twice, take higher
@@ -84,8 +87,8 @@ export function check(
   } else {
     // Normal roll
     const result = roll(dice)
-    // Extract individual die values from the roll
-    rolls = result.rolls.map(r => r.value)
+    // Result.rolls already contains the individual die values
+    rolls = result.rolls
     selectedRoll = result.total - result.modifier
   }
 
@@ -142,16 +145,16 @@ export function createDerivedStat(
   // Helper to get all transitive dependencies of a stat
   const getTransitiveDependencies = (statName: string, visited = new Set<string>()): Set<string> => {
     if (visited.has(statName)) {
-      return new Set()
+      return new Set<string>()
     }
     visited.add(statName)
 
-    const deps = internal._derivedDependencies.get(statName)
+    const deps = internal._derivedDependencies.get(statName) as Set<string> | undefined
     if (!deps) {
-      return new Set()
+      return new Set<string>()
     }
 
-    const result = new Set(deps)
+    const result = new Set<string>(deps)
     for (const dep of deps) {
       const transitive = getTransitiveDependencies(dep, visited)
       for (const t of transitive) {
@@ -372,5 +375,5 @@ export function rollTable<T>(entries: RollTableEntry<T>[]): T {
   }
 
   // Fallback to last entry (shouldn't happen)
-  return entries[entries.length - 1].value
+  return entries[entries.length - 1]!.value
 }

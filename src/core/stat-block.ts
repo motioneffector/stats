@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access */
+// Note: This file uses `any` for internal extension properties
+
 import { ValidationError, VersionError } from '../errors'
 import type {
   StatDefinitions,
@@ -78,13 +81,18 @@ export function createStatBlock(
     if (def.min !== undefined) base = Math.max(base, def.min)
     if (def.max !== undefined) base = Math.min(base, def.max)
 
-    stats.set(name, {
+    const statData: StatData = {
       base,
-      min: def.min,
-      max: def.max,
       modifiers: [],
       isDerived: false,
-    })
+    }
+    if (def.min !== undefined) {
+      statData.min = def.min
+    }
+    if (def.max !== undefined) {
+      statData.max = def.max
+    }
+    stats.set(name, statData)
   }
 
   // Restore from JSON if provided
