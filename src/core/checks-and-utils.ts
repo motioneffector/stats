@@ -167,6 +167,15 @@ export function createDerivedStat(
   // Create a proxy to detect which stats the formula accesses
   const proxy = new Proxy(statBlock, {
     get(target, prop) {
+      // Check if StatBlock has been disposed
+      if ((target as any)._isDisposed) {
+        // Return null/undefined for disposed StatBlocks to break circular references
+        if (prop === 'get') {
+          return () => undefined
+        }
+        return undefined
+      }
+
       if (prop === 'get') {
         return (statName: string) => {
           // Check if trying to reference itself

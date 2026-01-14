@@ -98,6 +98,7 @@ export type StatBlock = {
   onStat(statName: string, callback: (event: StatChangeEvent) => void): () => void
   isDerived(name: string): boolean
   toJSON(): SerializedStatBlock
+  dispose(): void
 }
 
 export type SerializedStatBlock = {
