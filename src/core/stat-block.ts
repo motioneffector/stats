@@ -65,6 +65,7 @@ export function createStatBlock(
   const rollHistory: HistoryEntry[] = []
   const changeListeners: Array<(event: StatChangeEvent) => void> = []
   const statListeners = new Map<string, Array<(event: StatChangeEvent) => void>>()
+  let isDisposed = false
 
   const historyLimit = options?.historyLimit ?? 100
   const modifierFormula = options?.modifierFormula
@@ -543,6 +544,40 @@ export function createStatBlock(
     })
   }
 
+  function dispose(): void {
+    // Mark as disposed first
+    isDisposed = true
+
+    // Clear all event listeners to prevent memory leaks
+    changeListeners.length = 0
+    statListeners.clear()
+
+    // Clear roll history
+    rollHistory.length = 0
+
+    // Clear all modifiers and stats data
+    for (const [, statData] of stats.entries()) {
+      statData.modifiers = []
+      // Clear derived stat formula if present
+      if (statData.derivedFormula) {
+        delete (statData as any).derivedFormula
+      }
+    }
+
+    // Clear the entire stats Map to break all references
+    stats.clear()
+
+    // Break circular references in derived stats
+    if ((publicAPI as any)._derivedDependencies) {
+      ;(publicAPI as any)._derivedDependencies.clear()
+      delete (publicAPI as any)._derivedDependencies
+    }
+
+    // Nullify internal references
+    delete (publicAPI as any)._addDerivedStat
+    delete (publicAPI as any)._modifierFormula
+  }
+
   const publicAPI: StatBlock = {
     get,
     getBase,
@@ -562,11 +597,19 @@ export function createStatBlock(
     onStat,
     isDerived,
     toJSON,
+    dispose,
   }
 
   // Add internal methods and properties
   ;(publicAPI as any)._addDerivedStat = addDerivedStat
   ;(publicAPI as any)._modifierFormula = modifierFormula
+
+  // Expose disposed flag for Proxy to check
+  Object.defineProperty(publicAPI, '_isDisposed', {
+    get: () => isDisposed,
+    enumerable: false,
+    configurable: true,
+  })
 
   return publicAPI
 }

@@ -55,6 +55,7 @@
     "build": "tsc && vite build",
     "test": "vitest",
     "test:run": "vitest run",
+    "fuzz:thorough": "NODE_OPTIONS='--expose-gc --max-old-space-size=8192' FUZZ_THOROUGH=1 vitest run src/fuzz.test.ts --testTimeout=120000 --pool=forks --poolOptions.forks.singleFork",
     "lint": "eslint 'src/**/*.ts' --ignore-pattern '**/*.test.ts'",
     "format": "prettier --write src",
     "typecheck": "tsc --noEmit",
