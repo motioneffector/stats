@@ -1423,3 +1423,20 @@ textarea.input {
   justify-content: flex-end;
   margin-top: var(--space-lg);
 }
+
+/* ============================================
+   DEMO MODE
+   ============================================ */
+
+.exhibit.demo-active {
+  box-shadow: 0 0 0 3px var(--accent-primary);
+  transition: box-shadow var(--transition-normal);
+}
+
+.demo-status {
+  text-align: center;
+  padding: var(--space-sm) var(--space-md);
+  color: var(--text-secondary);
+  font-style: italic;
+  min-height: 1.5em;
+}

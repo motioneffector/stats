@@ -8,6 +8,7 @@ import {
   ParseError,
   ValidationError
 } from '../dist/index.js'
+import { runVisualDemo } from './demo-mode.js'
 
 // ============================================
 // TEST RUNNER
@@ -87,6 +88,10 @@ export const testRunner = {
     failedCount.textContent = failed
     skippedCount.textContent = 0
     summary.classList.remove('hidden')
+
+    // Run visual demo after tests complete
+    await new Promise(r => setTimeout(r, 500))
+    await runVisualDemo()
 
     runBtn.disabled = false
     this.running = false

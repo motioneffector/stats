@@ -237,8 +237,8 @@
       <div class="test-runner-header">
         <h2 class="test-runner-title">Test Suite</h2>
         <div class="test-runner-actions">
-          <button class="btn btn-primary" id="run-tests">Run Tests</button>
-          <button class="btn btn-secondary" id="run-fuzz" style="display: none;">Run Fuzz Tests</button>
+          <button class="btn btn-primary" id="run-tests">Run All Tests</button>
+          <button class="btn btn-secondary" id="reset-page">Reset Page</button>
         </div>
       </div>
       <div class="test-runner-content">
@@ -265,6 +265,7 @@
             <span id="skipped-count">0</span> skipped
           </div>
         </div>
+        <div class="demo-status" id="demo-status"></div>
       </div>
     </footer>
   </div>
@@ -315,10 +316,12 @@
   <script type="module">
     import { initAllExhibits } from './demo-files/exhibits.js'
     import { initTestRunner } from './demo-files/tests.js'
+    import { initDemoMode } from './demo-files/demo-mode.js'
 
     // Initialize everything when DOM is ready
     initAllExhibits()
     initTestRunner()
+    initDemoMode()
   </script>
 </body>
 </html>
