@@ -760,3 +760,34 @@ describe('roll(notation)', () => {
     })
   })
 })
+
+describe('Security: DoS prevention', () => {
+  it('rejects excessive dice count to prevent memory exhaustion', () => {
+    expect(() => roll('10001d6')).toThrow(ParseError)
+    expect(() => roll('10001d6')).toThrow(/cannot roll more than 10000 dice/i)
+  })
+
+  it('rejects excessive die sides to prevent memory exhaustion', () => {
+    expect(() => roll('1d1000001')).toThrow(ParseError)
+    expect(() => roll('1d1000001')).toThrow(/cannot have more than 1000000 sides/i)
+  })
+
+  it('allows exactly max dice count', () => {
+    const result = roll('10000d6')
+    expect(result.rolls).toHaveLength(10000)
+  })
+
+  it('allows exactly max die sides', () => {
+    const result = roll('1d1000000')
+    expect(result.total).toBeGreaterThanOrEqual(1)
+    expect(result.total).toBeLessThanOrEqual(1000000)
+  })
+
+  it('large valid rolls complete in reasonable time', () => {
+    const start = Date.now()
+    roll('10000d6')
+    const elapsed = Date.now() - start
+    // Should complete in under 1 second
+    expect(elapsed).toBeLessThan(1000)
+  })
+})
