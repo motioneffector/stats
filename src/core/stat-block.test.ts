@@ -803,3 +803,77 @@ describe('stat modifiers - bounds interaction', () => {
     expect(stats.getBase('health')).toBe(100)
   })
 })
+
+describe('Security: prototype pollution prevention', () => {
+  it('rejects __proto__ as stat name in fromJSON', () => {
+    const malicious = {
+      version: 1,
+      stats: { __proto__: 999 },
+      modifiers: {},
+    }
+    const stats = createStatBlock({ strength: { base: 10 } }, { fromJSON: malicious as any })
+    // Should not pollute Object.prototype
+    expect((({} as any).polluted)).toBeUndefined()
+    expect(stats.get('__proto__')).toBeUndefined()
+  })
+
+  it('rejects constructor as stat name in fromJSON', () => {
+    const malicious = {
+      version: 1,
+      stats: { constructor: 999 },
+      modifiers: {},
+    }
+    const stats = createStatBlock({ strength: { base: 10 } }, { fromJSON: malicious as any })
+    expect(stats.get('constructor')).toBeUndefined()
+  })
+
+  it('rejects prototype as stat name in fromJSON', () => {
+    const malicious = {
+      version: 1,
+      stats: { prototype: 999 },
+      modifiers: {},
+    }
+    const stats = createStatBlock({ strength: { base: 10 } }, { fromJSON: malicious as any })
+    expect(stats.get('prototype')).toBeUndefined()
+  })
+
+  it('rejects __proto__ in modifiers in fromJSON', () => {
+    const malicious = {
+      version: 1,
+      stats: {},
+      modifiers: {
+        __proto__: [{ value: 10, source: 'evil', type: 'flat' as const, duration: 'permanent' as const }],
+      },
+    }
+    const stats = createStatBlock({ strength: { base: 10 } }, { fromJSON: malicious as any })
+    expect((({} as any).polluted)).toBeUndefined()
+  })
+
+  it('only processes own properties in fromJSON stats', () => {
+    const maliciousProto = { inherited: 999 }
+    const malicious = Object.create(maliciousProto)
+    malicious.version = 1
+    malicious.stats = Object.create({ inherited: 888 })
+    malicious.stats.legitimate = 10
+    malicious.modifiers = {}
+
+    const stats = createStatBlock({ legitimate: { base: 5 } }, { fromJSON: malicious })
+    expect(stats.get('legitimate')).toBe(10)
+    expect(stats.get('inherited')).toBeUndefined()
+  })
+
+  it('only processes own properties in fromJSON modifiers', () => {
+    const maliciousProto = {
+      inherited: [{ value: 10, source: 'evil', type: 'flat' as const, duration: 'permanent' as const }],
+    }
+    const malicious = {
+      version: 1,
+      stats: { strength: 10 },
+      modifiers: Object.create(maliciousProto),
+    }
+
+    const stats = createStatBlock({ strength: { base: 10 } }, { fromJSON: malicious as any })
+    const mods = stats.getModifiers('strength')
+    expect(mods).toEqual([])
+  })
+})

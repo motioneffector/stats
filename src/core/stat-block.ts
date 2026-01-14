@@ -106,7 +106,19 @@ export function createStatBlock(
       throw new VersionError(`Unsupported version: ${version}`, version)
     }
 
+    // Forbidden keys to prevent prototype pollution
+    const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
+
     for (const [name, base] of Object.entries(data.stats)) {
+      // Skip forbidden keys to prevent prototype pollution
+      if (FORBIDDEN_KEYS.has(name)) {
+        continue
+      }
+      // Only process own properties
+      if (!Object.hasOwn(data.stats, name)) {
+        continue
+      }
+
       if (stats.has(name)) {
         const stat = stats.get(name)!
         stat.base = clampValue(base, stat.min, stat.max)
@@ -116,6 +128,15 @@ export function createStatBlock(
     }
 
     for (const [name, mods] of Object.entries(data.modifiers)) {
+      // Skip forbidden keys to prevent prototype pollution
+      if (FORBIDDEN_KEYS.has(name)) {
+        continue
+      }
+      // Only process own properties
+      if (!Object.hasOwn(data.modifiers, name)) {
+        continue
+      }
+
       if (stats.has(name)) {
         for (const mod of mods) {
           addModifier(name, mod)
