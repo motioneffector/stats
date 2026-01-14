@@ -1,0 +1,2765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@motioneffector/stats - Demo</title>
+  <style>
+/* ============================================
+   RESET & BASE
+   ============================================ */
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #e6edf3;
+  background: #0d1117;
+  min-height: 100vh;
+}
+
+/* ============================================
+   CSS VARIABLES
+   ============================================ */
+
+:root {
+  /* Backgrounds */
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --bg-hover: #30363d;
+
+  /* Borders */
+  --border-default: #30363d;
+  --border-muted: #21262d;
+
+  /* Text */
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+  --text-link: #58a6ff;
+
+  /* Accents */
+  --accent-blue: #1f6feb;
+  --accent-blue-hover: #388bfd;
+  --accent-green: #238636;
+  --accent-green-bright: #3fb950;
+  --accent-red: #da3633;
+  --accent-red-bright: #f85149;
+  --accent-yellow: #d29922;
+  --accent-yellow-bright: #e3b341;
+  --accent-purple: #8957e5;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-xxl: 48px;
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+
+  /* Typography */
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-xxl: 2rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+
+  /* Transitions */
+  --transition-fast: 0.1s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
+}
+
+/* ============================================
+   LAYOUT
+   ============================================ */
+
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-xl);
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+.header {
+  margin-bottom: var(--space-xxl);
+  padding-bottom: var(--space-xl);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.header-title {
+  font-size: var(--font-size-xxl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.header-description {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-lg);
+}
+
+.header-links {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.header-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--text-link);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast);
+}
+
+.header-link:hover {
+  background: var(--bg-tertiary);
+  text-decoration: underline;
+}
+
+/* ============================================
+   EXHIBITS
+   ============================================ */
+
+.exhibits {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxl);
+}
+
+.exhibit {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.exhibit-header {
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.exhibit-title {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.exhibit-description {
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+}
+
+.exhibit-content {
+  padding: var(--space-lg);
+}
+
+.exhibit-interactive {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-lg);
+  min-height: 200px;
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.exhibit-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-lg);
+}
+
+.exhibit-state {
+  padding: var(--space-md);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+}
+
+.exhibit-state-title {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-sm);
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent-blue);
+  color: white;
+  border-color: var(--accent-blue);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-blue-hover);
+  border-color: var(--accent-blue-hover);
+}
+
+.btn-secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-default);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--bg-hover);
+}
+
+.btn-danger {
+  background: var(--accent-red);
+  color: white;
+  border-color: var(--accent-red);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: var(--accent-red-bright);
+}
+
+.btn-success {
+  background: var(--accent-green);
+  color: white;
+  border-color: var(--accent-green);
+}
+
+.btn-success:hover:not(:disabled) {
+  background: var(--accent-green-bright);
+}
+
+.btn-small {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-size-xs);
+}
+
+/* ============================================
+   INPUTS
+   ============================================ */
+
+.input {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  transition: border-color var(--transition-fast);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.input-mono {
+  font-family: var(--font-mono);
+}
+
+select.input {
+  cursor: pointer;
+}
+
+textarea.input {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+/* ============================================
+   TOGGLE
+   ============================================ */
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+}
+
+.toggle-switch {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  background: var(--bg-hover);
+  border-radius: 11px;
+  transition: background var(--transition-normal);
+}
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  background: var(--text-primary);
+  border-radius: 50%;
+  transition: transform var(--transition-normal);
+}
+
+.toggle input {
+  display: none;
+}
+
+.toggle input:checked + .toggle-switch {
+  background: var(--accent-blue);
+}
+
+.toggle input:checked + .toggle-switch::after {
+  transform: translateX(18px);
+}
+
+.toggle-label {
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   TAGS / BADGES
+   ============================================ */
+
+.tag {
+  display: inline-block;
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.tag-blue {
+  background: rgba(31, 111, 235, 0.2);
+  color: var(--accent-blue-hover);
+}
+
+.tag-green {
+  background: rgba(35, 134, 54, 0.2);
+  color: var(--accent-green-bright);
+}
+
+.tag-red {
+  background: rgba(218, 54, 51, 0.2);
+  color: var(--accent-red-bright);
+}
+
+.tag-yellow {
+  background: rgba(210, 153, 34, 0.2);
+  color: var(--accent-yellow-bright);
+}
+
+.tag-purple {
+  background: rgba(137, 87, 229, 0.2);
+  color: var(--accent-purple);
+}
+
+/* ============================================
+   TEST RUNNER
+   ============================================ */
+
+.test-runner {
+  margin-top: var(--space-xxl);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.test-runner-header {
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.test-runner-title {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+}
+
+.test-runner-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.test-runner-content {
+  padding: var(--space-lg);
+}
+
+.test-progress {
+  margin-bottom: var(--space-lg);
+}
+
+.test-progress-bar {
+  height: 8px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: var(--space-sm);
+}
+
+.test-progress-fill {
+  height: 100%;
+  background: var(--accent-blue);
+  border-radius: 4px;
+  transition: width var(--transition-fast);
+  width: 0%;
+}
+
+.test-progress-fill.success {
+  background: var(--accent-green);
+}
+
+.test-progress-fill.failure {
+  background: var(--accent-red);
+}
+
+.test-progress-text {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.test-output {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-md);
+  max-height: 400px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+}
+
+.test-output-empty {
+  padding: var(--space-xl);
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.test-item {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border-muted);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+.test-item:last-child {
+  border-bottom: none;
+}
+
+.test-icon {
+  flex-shrink: 0;
+  font-size: var(--font-size-md);
+}
+
+.test-icon.pass {
+  color: var(--accent-green-bright);
+}
+
+.test-icon.fail {
+  color: var(--accent-red-bright);
+}
+
+.test-name {
+  color: var(--text-primary);
+}
+
+.test-error {
+  color: var(--accent-red-bright);
+  font-size: var(--font-size-xs);
+  margin-top: var(--space-xs);
+}
+
+.test-summary {
+  margin-top: var(--space-lg);
+  padding: var(--space-md);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  display: flex;
+  gap: var(--space-lg);
+}
+
+.test-summary-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.test-summary-item.passed {
+  color: var(--accent-green-bright);
+}
+
+.test-summary-item.failed {
+  color: var(--accent-red-bright);
+}
+
+.test-summary-item.skipped {
+  color: var(--text-muted);
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+.text-success { color: var(--accent-green-bright); }
+.text-error { color: var(--accent-red-bright); }
+.text-warning { color: var(--accent-yellow-bright); }
+
+.font-mono { font-family: var(--font-mono); }
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-xs { gap: var(--space-xs); }
+.gap-sm { gap: var(--space-sm); }
+.gap-md { gap: var(--space-md); }
+.gap-lg { gap: var(--space-lg); }
+
+.mt-sm { margin-top: var(--space-sm); }
+.mt-md { margin-top: var(--space-md); }
+.mt-lg { margin-top: var(--space-lg); }
+.mb-sm { margin-bottom: var(--space-sm); }
+.mb-md { margin-bottom: var(--space-md); }
+.mb-lg { margin-bottom: var(--space-lg); }
+
+.p-sm { padding: var(--space-sm); }
+.p-md { padding: var(--space-md); }
+.p-lg { padding: var(--space-lg); }
+
+.hidden { display: none; }
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-hover);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-default);
+}
+
+/* ============================================
+   EXHIBIT-SPECIFIC STYLES
+   ============================================ */
+
+/* Dice Tray */
+.dice-tray {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.dice-tray-area {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  min-height: 180px;
+  position: relative;
+}
+
+.dice-kept-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  min-height: 80px;
+  padding-bottom: var(--space-md);
+  border-bottom: 2px dashed var(--border-default);
+  margin-bottom: var(--space-md);
+}
+
+.dice-dropped-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  min-height: 40px;
+  opacity: 0.5;
+}
+
+.dice-dropped-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-bottom: var(--space-xs);
+}
+
+.die {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  background: var(--accent-blue);
+  color: white;
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  position: relative;
+}
+
+.die.kept {
+  background: var(--accent-blue);
+  animation: dieAppear 0.4s ease-out;
+}
+
+.die.dropped {
+  background: var(--bg-hover);
+  color: var(--text-muted);
+  width: 36px;
+  height: 36px;
+  font-size: var(--font-size-sm);
+}
+
+.die.exploded {
+  background: var(--accent-yellow);
+  color: var(--bg-primary);
+}
+
+.die.rerolled {
+  background: var(--accent-purple);
+}
+
+.die:hover {
+  transform: scale(1.1);
+}
+
+@keyframes dieAppear {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(10deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+
+.dice-total {
+  text-align: center;
+  margin-top: var(--space-md);
+}
+
+.dice-total-value {
+  font-size: var(--font-size-xxl);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.dice-total-breakdown {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-top: var(--space-xs);
+}
+
+.dice-input-row {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.dice-input-row .input {
+  flex: 1;
+  max-width: 200px;
+}
+
+.dice-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+}
+
+/* Character Sheet */
+.character-sheet {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.character-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.character-icon {
+  font-size: 2.5rem;
+}
+
+.character-name {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+}
+
+.character-actions {
+  margin-left: auto;
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: var(--space-md);
+}
+
+.stat-card {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  text-align: center;
+  transition: all var(--transition-normal);
+}
+
+.stat-card:hover {
+  background: var(--bg-hover);
+}
+
+.stat-name {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-xs);
+}
+
+.stat-value {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+.stat-value:hover {
+  background: var(--bg-primary);
+}
+
+.stat-value.editing {
+  background: var(--bg-primary);
+}
+
+.stat-value input {
+  width: 50px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: inherit;
+  font-weight: inherit;
+  text-align: center;
+  outline: none;
+}
+
+.stat-modifier {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-top: var(--space-xs);
+}
+
+.stat-modifiers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+  justify-content: center;
+}
+
+.modifier-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 2px 6px;
+  font-size: var(--font-size-xs);
+  border-radius: var(--radius-sm);
+  background: var(--accent-purple);
+  color: white;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.modifier-badge:hover {
+  filter: brightness(1.2);
+}
+
+.modifier-badge.expiring {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.derived-stats {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+.derived-stats-title {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-md);
+}
+
+.derived-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--space-md);
+}
+
+.derived-stat {
+  text-align: center;
+}
+
+.derived-stat-value {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.derived-stat-name {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.derived-stat-formula {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.derived-stat.updated {
+  animation: highlightStat 0.5s ease-out;
+}
+
+@keyframes highlightStat {
+  0%, 100% { background: transparent; }
+  50% { background: rgba(31, 111, 235, 0.3); }
+}
+
+.health-section {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+.health-label {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-sm);
+}
+
+.health-bar-container {
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  height: 24px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+}
+
+.health-bar {
+  height: 100%;
+  transition: width var(--transition-normal), background var(--transition-normal);
+  border-radius: var(--radius-md);
+}
+
+.health-bar.high {
+  background: var(--accent-green);
+}
+
+.health-bar.medium {
+  background: var(--accent-yellow);
+}
+
+.health-bar.low {
+  background: var(--accent-red);
+}
+
+.health-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.health-controls {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+  justify-content: center;
+}
+
+.modifiers-section {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+.modifiers-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.modifiers-title {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modifiers-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.modifier-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm);
+  background: var(--bg-primary);
+  border-radius: var(--radius-sm);
+}
+
+.modifier-item-name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.modifier-item-stat {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.modifier-item-value {
+  font-family: var(--font-mono);
+  color: var(--accent-green-bright);
+}
+
+.modifier-item-duration {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+}
+
+.modifier-item-remove {
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.modifier-item-remove:hover {
+  color: var(--accent-red);
+}
+
+/* Skill Check Arena */
+.skill-check-arena {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.arena-participants {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: var(--space-lg);
+  align-items: center;
+}
+
+.participant-card {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  text-align: center;
+}
+
+.participant-icon {
+  font-size: 2rem;
+  margin-bottom: var(--space-sm);
+}
+
+.participant-name {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+}
+
+.participant-stats {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.participant-stats div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.arena-vs {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.dice-arena {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  min-height: 200px;
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  gap: var(--space-lg);
+}
+
+.dice-arena-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.dice-arena-divider {
+  background: var(--border-default);
+}
+
+.arena-dice-container {
+  display: flex;
+  gap: var(--space-sm);
+  min-height: 80px;
+  align-items: center;
+}
+
+.arena-die {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  border-radius: var(--radius-lg);
+  background: var(--accent-blue);
+  color: white;
+  box-shadow: var(--shadow-lg);
+}
+
+.arena-die.winner {
+  background: var(--accent-green);
+  animation: winnerGlow 0.5s ease-out;
+}
+
+.arena-die.loser {
+  background: var(--bg-hover);
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.arena-die.rolling {
+  animation: diceRoll 0.5s ease-out;
+}
+
+@keyframes diceRoll {
+  0% { transform: translateY(-50px) rotate(-180deg); opacity: 0; }
+  60% { transform: translateY(10px) rotate(20deg); }
+  100% { transform: translateY(0) rotate(0); opacity: 1; }
+}
+
+@keyframes winnerGlow {
+  0%, 100% { box-shadow: var(--shadow-lg); }
+  50% { box-shadow: 0 0 20px var(--accent-green); }
+}
+
+.arena-calculation {
+  text-align: center;
+  font-family: var(--font-mono);
+}
+
+.arena-modifier {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.arena-total {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  margin-top: var(--space-sm);
+}
+
+.arena-result {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin-top: var(--space-sm);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-md);
+}
+
+.arena-result.success {
+  background: rgba(35, 134, 54, 0.2);
+  color: var(--accent-green-bright);
+}
+
+.arena-result.failure {
+  background: rgba(218, 54, 51, 0.2);
+  color: var(--accent-red-bright);
+}
+
+.arena-result.winner {
+  background: rgba(35, 134, 54, 0.2);
+  color: var(--accent-green-bright);
+}
+
+.arena-result.tie {
+  background: rgba(210, 153, 34, 0.2);
+  color: var(--accent-yellow-bright);
+}
+
+.check-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  align-items: center;
+}
+
+.check-options label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--font-size-sm);
+}
+
+.dc-slider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.dc-slider input[type="range"] {
+  width: 150px;
+}
+
+.dc-value {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  min-width: 30px;
+}
+
+/* Loot Table / Prize Wheel */
+.loot-table {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.wheel-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.wheel-wrapper {
+  position: relative;
+  width: 300px;
+  height: 300px;
+}
+
+.wheel {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: relative;
+  transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+  box-shadow: var(--shadow-lg);
+}
+
+.wheel-pointer {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-top: 30px solid var(--accent-yellow);
+  z-index: 10;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.wheel-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  background: var(--bg-primary);
+  border-radius: 50%;
+  border: 3px solid var(--border-default);
+  z-index: 5;
+}
+
+.loot-result {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  text-align: center;
+  min-height: 100px;
+}
+
+.loot-result-icon {
+  font-size: 3rem;
+  margin-bottom: var(--space-sm);
+}
+
+.loot-result-name {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+}
+
+.loot-result-rarity {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-top: var(--space-xs);
+}
+
+.loot-history {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  justify-content: center;
+  margin-top: var(--space-md);
+}
+
+.loot-history-item {
+  font-size: 1.5rem;
+  transition: transform var(--transition-fast);
+}
+
+.loot-history-item:hover {
+  transform: scale(1.3);
+}
+
+.loot-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  justify-content: center;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-normal);
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  min-width: 300px;
+  max-width: 90vw;
+  transform: scale(0.9);
+  transition: transform var(--transition-normal);
+}
+
+.modal-overlay.active .modal {
+  transform: scale(1);
+}
+
+.modal-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin-bottom: var(--space-lg);
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.modal-form label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  font-size: var(--font-size-sm);
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: flex-end;
+  margin-top: var(--space-lg);
+}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/stats</h1>
+      <p class="header-description">RPG stat management with D&D 5e-style mechanics, dice rolling, and stat checks</p>
+      <nav class="header-links">
+        <a href="https://www.npmjs.com/package/@motioneffector/stats" class="header-link" target="_blank">
+          📦 npm
+        </a>
+        <a href="https://github.com/motioneffector/stats" class="header-link" target="_blank">
+          💻 GitHub
+        </a>
+        <a href="https://github.com/motioneffector/stats/wiki" class="header-link" target="_blank">
+          📖 Manual
+        </a>
+      </nav>
+    </header>
+
+    <main class="exhibits">
+      <!-- Exhibit 1: Dice Tray -->
+      <section class="exhibit">
+        <div class="exhibit-header">
+          <h2 class="exhibit-title">Dice Tray</h2>
+          <p class="exhibit-description">Roll dice with full notation support: keep/drop highest/lowest, exploding dice, rerolls, and modifiers.</p>
+        </div>
+        <div class="exhibit-content">
+          <div class="exhibit-interactive">
+            <div class="dice-tray">
+              <div class="dice-tray-area">
+                <div class="dice-kept-area" id="dice-kept"></div>
+                <div class="dice-dropped-label">Dropped</div>
+                <div class="dice-dropped-area" id="dice-dropped"></div>
+              </div>
+              <div class="dice-total">
+                <div class="dice-total-value" id="dice-total">0</div>
+                <div class="dice-total-breakdown" id="dice-breakdown"></div>
+              </div>
+            </div>
+          </div>
+          <div class="exhibit-controls">
+            <div class="dice-input-row">
+              <input type="text" class="input input-mono" id="dice-notation" value="4d6dl1" placeholder="e.g., 2d6+3">
+              <button class="btn btn-primary" id="dice-roll">Roll</button>
+            </div>
+            <div class="dice-presets">
+              <button class="btn btn-small btn-secondary" data-notation="1d20">d20</button>
+              <button class="btn btn-small btn-secondary" data-notation="2d20kh1">2d20kh1 (adv)</button>
+              <button class="btn btn-small btn-secondary" data-notation="4d6dl1">4d6dl1 (stat)</button>
+              <button class="btn btn-small btn-secondary" data-notation="2d6!">2d6! (explode)</button>
+              <button class="btn btn-small btn-secondary" data-notation="1d20r1">1d20r1 (reroll 1s)</button>
+              <button class="btn btn-small btn-secondary" data-notation="8d6">8d6 (fireball)</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Exhibit 2: Character Sheet -->
+      <section class="exhibit">
+        <div class="exhibit-header">
+          <h2 class="exhibit-title">Character Sheet</h2>
+          <p class="exhibit-description">Manage stats with bounds, modifiers (flat/multiply), duration tracking, and derived stats.</p>
+        </div>
+        <div class="exhibit-content">
+          <div class="exhibit-interactive">
+            <div class="character-sheet">
+              <div class="character-header">
+                <div class="character-icon">⚔️</div>
+                <div class="character-name">Hero</div>
+                <div class="character-actions">
+                  <button class="btn btn-small btn-secondary" id="char-reset">Reset</button>
+                  <button class="btn btn-small btn-primary" id="char-add-modifier">+ Modifier</button>
+                </div>
+              </div>
+
+              <div class="stats-grid" id="stats-grid"></div>
+
+              <div class="derived-stats">
+                <div class="derived-stats-title">Derived Stats</div>
+                <div class="derived-stats-grid" id="derived-stats"></div>
+              </div>
+
+              <div class="health-section">
+                <div class="health-label">Health</div>
+                <div class="health-bar-container" id="health-container">
+                  <div class="health-bar high" id="health-bar"></div>
+                  <div class="health-text" id="health-text">75/100</div>
+                </div>
+                <div class="health-controls">
+                  <button class="btn btn-small btn-danger" data-health="-10">-10</button>
+                  <button class="btn btn-small btn-danger" data-health="-1">-1</button>
+                  <button class="btn btn-small btn-success" data-health="1">+1</button>
+                  <button class="btn btn-small btn-success" data-health="10">+10</button>
+                  <button class="btn btn-small btn-secondary" id="health-full">Full</button>
+                </div>
+              </div>
+
+              <div class="modifiers-section">
+                <div class="modifiers-header">
+                  <div class="modifiers-title">Active Modifiers</div>
+                  <button class="btn btn-small btn-secondary" id="char-tick">Tick ⏭</button>
+                </div>
+                <div class="modifiers-list" id="modifiers-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Exhibit 3: Skill Check Arena -->
+      <section class="exhibit">
+        <div class="exhibit-header">
+          <h2 class="exhibit-title">Skill Check Arena</h2>
+          <p class="exhibit-description">Make skill checks with advantage/disadvantage, or run contests between two participants.</p>
+        </div>
+        <div class="exhibit-content">
+          <div class="exhibit-interactive">
+            <div class="skill-check-arena">
+              <div class="arena-participants">
+                <div class="participant-card">
+                  <div class="participant-icon">⚔️</div>
+                  <div class="participant-name">Hero</div>
+                  <div class="participant-stats" id="hero-stats"></div>
+                </div>
+                <div class="arena-vs">VS</div>
+                <div class="participant-card">
+                  <div class="participant-icon">👹</div>
+                  <div class="participant-name">Goblin</div>
+                  <div class="participant-stats" id="goblin-stats"></div>
+                </div>
+              </div>
+
+              <div class="dice-arena">
+                <div class="dice-arena-side" id="arena-hero">
+                  <div class="arena-dice-container" id="hero-dice"></div>
+                  <div class="arena-calculation">
+                    <div class="arena-modifier" id="hero-modifier"></div>
+                    <div class="arena-total" id="hero-total"></div>
+                  </div>
+                  <div class="arena-result" id="hero-result"></div>
+                </div>
+                <div class="dice-arena-divider"></div>
+                <div class="dice-arena-side" id="arena-goblin">
+                  <div class="arena-dice-container" id="goblin-dice"></div>
+                  <div class="arena-calculation">
+                    <div class="arena-modifier" id="goblin-modifier"></div>
+                    <div class="arena-total" id="goblin-total"></div>
+                  </div>
+                  <div class="arena-result" id="goblin-result"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="exhibit-controls">
+            <div class="check-options">
+              <label>
+                Stat:
+                <select class="input" id="check-stat">
+                  <option value="strength">STR</option>
+                  <option value="dexterity">DEX</option>
+                  <option value="constitution">CON</option>
+                  <option value="intelligence">INT</option>
+                  <option value="wisdom">WIS</option>
+                  <option value="charisma">CHA</option>
+                </select>
+              </label>
+              <div class="dc-slider">
+                <label>DC:</label>
+                <input type="range" id="check-dc" min="1" max="30" value="15">
+                <span class="dc-value" id="dc-display">15</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="check-advantage">
+                <span class="toggle-switch"></span>
+                <span class="toggle-label">Advantage</span>
+              </label>
+              <label class="toggle">
+                <input type="checkbox" id="check-disadvantage">
+                <span class="toggle-switch"></span>
+                <span class="toggle-label">Disadvantage</span>
+              </label>
+            </div>
+            <div class="flex gap-sm mt-md">
+              <button class="btn btn-primary" id="roll-check">Roll Check</button>
+              <button class="btn btn-secondary" id="run-contest">Run Contest</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Exhibit 4: Loot Table -->
+      <section class="exhibit">
+        <div class="exhibit-header">
+          <h2 class="exhibit-title">Loot Table</h2>
+          <p class="exhibit-description">Roll on weighted random tables with visual probability distribution.</p>
+        </div>
+        <div class="exhibit-content">
+          <div class="exhibit-interactive">
+            <div class="loot-table">
+              <div class="wheel-container">
+                <div class="wheel-wrapper">
+                  <div class="wheel-pointer"></div>
+                  <div class="wheel" id="loot-wheel"></div>
+                  <div class="wheel-center"></div>
+                </div>
+                <button class="btn btn-primary btn-large" id="spin-wheel">Spin Wheel</button>
+              </div>
+
+              <div class="loot-result" id="loot-result">
+                <div class="loot-result-icon" id="result-icon">🧪</div>
+                <div class="loot-result-name" id="result-name">Health Potion</div>
+                <div class="loot-result-rarity" id="result-rarity">COMMON - 25% chance</div>
+              </div>
+
+              <div>
+                <div class="loot-history" id="loot-history"></div>
+                <div class="loot-stats" id="loot-stats"></div>
+              </div>
+            </div>
+          </div>
+          <div class="exhibit-controls">
+            <button class="btn btn-secondary" id="spin-10">Spin x10</button>
+            <button class="btn btn-secondary" id="reset-history">Reset History</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="test-runner">
+      <div class="test-runner-header">
+        <h2 class="test-runner-title">Test Suite</h2>
+        <div class="test-runner-actions">
+          <button class="btn btn-primary" id="run-tests">Run Tests</button>
+          <button class="btn btn-secondary" id="run-fuzz" style="display: none;">Run Fuzz Tests</button>
+        </div>
+      </div>
+      <div class="test-runner-content">
+        <div class="test-progress">
+          <div class="test-progress-bar">
+            <div class="test-progress-fill" id="progress-fill"></div>
+          </div>
+          <div class="test-progress-text" id="progress-text">Ready to run tests</div>
+        </div>
+        <div class="test-output" id="test-output">
+          <div class="test-output-empty">Click "Run Tests" to execute the test suite</div>
+        </div>
+        <div class="test-summary hidden" id="test-summary">
+          <div class="test-summary-item passed">
+            <span>✓</span>
+            <span id="passed-count">0</span> passed
+          </div>
+          <div class="test-summary-item failed">
+            <span>✗</span>
+            <span id="failed-count">0</span> failed
+          </div>
+          <div class="test-summary-item skipped">
+            <span>○</span>
+            <span id="skipped-count">0</span> skipped
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Add Modifier Modal -->
+  <div class="modal-overlay" id="modifier-modal">
+    <div class="modal">
+      <div class="modal-title">Add Modifier</div>
+      <div class="modal-form">
+        <label>
+          Stat
+          <select class="input" id="mod-stat">
+            <option value="strength">Strength</option>
+            <option value="dexterity">Dexterity</option>
+            <option value="constitution">Constitution</option>
+            <option value="intelligence">Intelligence</option>
+            <option value="wisdom">Wisdom</option>
+            <option value="charisma">Charisma</option>
+          </select>
+        </label>
+        <label>
+          Name
+          <input type="text" class="input" id="mod-name" value="Buff" placeholder="e.g., Bull's Strength">
+        </label>
+        <label>
+          Value
+          <input type="number" class="input" id="mod-value" value="4">
+        </label>
+        <label>
+          Type
+          <select class="input" id="mod-type">
+            <option value="flat">Flat (+/-)</option>
+            <option value="multiply">Multiply (x)</option>
+          </select>
+        </label>
+        <label>
+          Duration
+          <input type="number" class="input" id="mod-duration" value="3" min="1" placeholder="Rounds (0 = permanent)">
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="mod-cancel">Cancel</button>
+        <button class="btn btn-primary" id="mod-add">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import {
+      roll,
+      createStatBlock,
+      check,
+      createDerivedStat,
+      contest,
+      rollTable,
+      ParseError,
+      ValidationError
+    } from './dist/index.js'
+
+    // ============================================
+    // EXHIBIT 1: DICE TRAY
+    // ============================================
+
+    const diceState = {
+      notation: '4d6dl1',
+      lastResult: null
+    }
+
+    function renderDice(result) {
+      const keptArea = document.getElementById('dice-kept')
+      const droppedArea = document.getElementById('dice-dropped')
+      const totalEl = document.getElementById('dice-total')
+      const breakdownEl = document.getElementById('dice-breakdown')
+
+      keptArea.innerHTML = ''
+      droppedArea.innerHTML = ''
+
+      // Determine which dice were kept vs dropped
+      const keptValues = [...result.kept]
+      const allValues = [...result.rolls]
+
+      // For simple cases, show kept dice
+      result.kept.forEach((value, i) => {
+        const die = document.createElement('div')
+        die.className = 'die kept'
+        die.textContent = value
+        die.style.animationDelay = `${i * 80}ms`
+        die.title = `Kept die: ${value}`
+        keptArea.appendChild(die)
+      })
+
+      // Show dropped dice (rolls that aren't in kept)
+      const keptCopy = [...result.kept]
+      result.rolls.forEach((value) => {
+        const keptIndex = keptCopy.indexOf(value)
+        if (keptIndex === -1) {
+          const die = document.createElement('div')
+          die.className = 'die dropped'
+          die.textContent = value
+          die.title = `Dropped die: ${value}`
+          droppedArea.appendChild(die)
+        } else {
+          keptCopy.splice(keptIndex, 1)
+        }
+      })
+
+      totalEl.textContent = result.total
+
+      // Build breakdown
+      const parts = []
+      if (result.kept.length > 0) {
+        parts.push(result.kept.join(' + '))
+      }
+      if (result.modifier !== 0) {
+        parts.push(result.modifier > 0 ? `+ ${result.modifier}` : `- ${Math.abs(result.modifier)}`)
+      }
+      breakdownEl.textContent = parts.length > 1 ? parts.join(' ') : ''
+    }
+
+    function rollDice() {
+      const notation = document.getElementById('dice-notation').value.trim()
+      if (!notation) return
+
+      try {
+        const result = roll(notation)
+        diceState.lastResult = result
+        diceState.notation = notation
+        renderDice(result)
+      } catch (e) {
+        if (e instanceof ParseError) {
+          document.getElementById('dice-total').textContent = 'Error'
+          document.getElementById('dice-breakdown').textContent = e.message
+        }
+      }
+    }
+
+    document.getElementById('dice-roll').addEventListener('click', rollDice)
+    document.getElementById('dice-notation').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') rollDice()
+    })
+
+    document.querySelectorAll('[data-notation]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('dice-notation').value = btn.dataset.notation
+        rollDice()
+      })
+    })
+
+    // Initial roll
+    rollDice()
+
+    // ============================================
+    // EXHIBIT 2: CHARACTER SHEET
+    // ============================================
+
+    const heroStats = createStatBlock({
+      strength: { base: 16, min: 1, max: 20 },
+      dexterity: { base: 14, min: 1, max: 20 },
+      constitution: { base: 12, min: 1, max: 20 },
+      intelligence: { base: 10, min: 1, max: 20 },
+      wisdom: { base: 13, min: 1, max: 20 },
+      charisma: { base: 8, min: 1, max: 20 },
+      health: { base: 75, min: 0, max: 100 }
+    })
+
+    // Add initial modifier
+    heroStats.addModifier('strength', {
+      value: 4,
+      source: "Bull's Strength",
+      type: 'flat',
+      duration: 3
+    })
+
+    // Create derived stats
+    createDerivedStat(heroStats, 'carryCapacity', (s) => s.get('strength') * 15)
+    createDerivedStat(heroStats, 'armorClass', (s) => 10 + Math.floor((s.get('dexterity') - 10) / 2))
+    createDerivedStat(heroStats, 'initiative', (s) => Math.floor((s.get('dexterity') - 10) / 2))
+
+    function calcModifier(value) {
+      return Math.floor((value - 10) / 2)
+    }
+
+    function formatModifier(mod) {
+      return mod >= 0 ? `+${mod}` : `${mod}`
+    }
+
+    function renderCharacterSheet() {
+      const statsGrid = document.getElementById('stats-grid')
+      const derivedStats = document.getElementById('derived-stats')
+      const modifiersList = document.getElementById('modifiers-list')
+
+      // Render main stats
+      const mainStats = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma']
+      statsGrid.innerHTML = mainStats.map(stat => {
+        const value = heroStats.get(stat)
+        const base = heroStats.getBase(stat)
+        const mod = calcModifier(value)
+        const mods = heroStats.getModifiers(stat) || []
+
+        return `
+          <div class="stat-card">
+            <div class="stat-name">${stat.slice(0, 3).toUpperCase()}</div>
+            <div class="stat-value" data-stat="${stat}">${value}</div>
+            <div class="stat-modifier">${formatModifier(mod)}</div>
+            ${mods.length > 0 ? `
+              <div class="stat-modifiers">
+                ${mods.map(m => `
+                  <span class="modifier-badge ${m.duration !== 'permanent' && m.duration <= 1 ? 'expiring' : ''}"
+                        data-stat="${stat}" data-source="${m.source}"
+                        title="${m.source}: ${m.type === 'multiply' ? '×' : '+'}${m.value}, ${m.duration === 'permanent' ? '∞' : m.duration + ' rounds'}">
+                    ${m.type === 'multiply' ? '×' : '+'}${m.value}${m.duration !== 'permanent' ? ' ⏱' + m.duration : ''}
+                  </span>
+                `).join('')}
+              </div>
+            ` : ''}
+          </div>
+        `
+      }).join('')
+
+      // Render derived stats
+      derivedStats.innerHTML = `
+        <div class="derived-stat" id="derived-carry">
+          <div class="derived-stat-value">${heroStats.get('carryCapacity')} lbs</div>
+          <div class="derived-stat-name">Carry Capacity</div>
+          <div class="derived-stat-formula">STR × 15</div>
+        </div>
+        <div class="derived-stat" id="derived-ac">
+          <div class="derived-stat-value">${heroStats.get('armorClass')}</div>
+          <div class="derived-stat-name">Armor Class</div>
+          <div class="derived-stat-formula">10 + DEX mod</div>
+        </div>
+        <div class="derived-stat" id="derived-init">
+          <div class="derived-stat-value">${formatModifier(heroStats.get('initiative'))}</div>
+          <div class="derived-stat-name">Initiative</div>
+          <div class="derived-stat-formula">DEX mod</div>
+        </div>
+      `
+
+      // Render health
+      const health = heroStats.get('health')
+      const maxHealth = 100
+      const healthPercent = (health / maxHealth) * 100
+      const healthBar = document.getElementById('health-bar')
+      const healthText = document.getElementById('health-text')
+
+      healthBar.style.width = `${healthPercent}%`
+      healthBar.className = 'health-bar ' + (healthPercent > 60 ? 'high' : healthPercent > 30 ? 'medium' : 'low')
+      healthText.textContent = `${health}/${maxHealth}`
+
+      // Render active modifiers list
+      const allModifiers = []
+      mainStats.forEach(stat => {
+        const mods = heroStats.getModifiers(stat) || []
+        mods.forEach(m => {
+          allModifiers.push({ stat, ...m })
+        })
+      })
+
+      if (allModifiers.length === 0) {
+        modifiersList.innerHTML = '<div class="text-muted">No active modifiers</div>'
+      } else {
+        modifiersList.innerHTML = allModifiers.map(m => `
+          <div class="modifier-item">
+            <span class="modifier-item-name">${m.source}</span>
+            <span class="modifier-item-stat">${m.stat.slice(0, 3).toUpperCase()}</span>
+            <span class="modifier-item-value">${m.type === 'multiply' ? '×' : '+'}${m.value}</span>
+            <span class="modifier-item-duration">${m.duration === 'permanent' ? '∞ perm' : '⏱ ' + m.duration + ' left'}</span>
+            <span class="modifier-item-remove" data-stat="${m.stat}" data-source="${m.source}">✕</span>
+          </div>
+        `).join('')
+      }
+
+      // Add click handlers for stat editing
+      document.querySelectorAll('.stat-value[data-stat]').forEach(el => {
+        el.addEventListener('click', () => {
+          const stat = el.dataset.stat
+          const current = heroStats.getBase(stat)
+          const input = document.createElement('input')
+          input.type = 'number'
+          input.value = current
+          input.min = 1
+          input.max = 20
+          el.innerHTML = ''
+          el.appendChild(input)
+          el.classList.add('editing')
+          input.focus()
+          input.select()
+
+          const finish = () => {
+            const newValue = parseInt(input.value) || current
+            heroStats.set(stat, newValue)
+            renderCharacterSheet()
+          }
+
+          input.addEventListener('blur', finish)
+          input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') finish()
+          })
+        })
+      })
+
+      // Add click handlers for modifier badges (removal)
+      document.querySelectorAll('.modifier-badge').forEach(el => {
+        el.addEventListener('click', () => {
+          heroStats.removeModifier(el.dataset.stat, el.dataset.source)
+          renderCharacterSheet()
+        })
+      })
+
+      // Add click handlers for modifier list removal
+      document.querySelectorAll('.modifier-item-remove').forEach(el => {
+        el.addEventListener('click', () => {
+          heroStats.removeModifier(el.dataset.stat, el.dataset.source)
+          renderCharacterSheet()
+        })
+      })
+    }
+
+    // Health controls
+    document.querySelectorAll('[data-health]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const delta = parseInt(btn.dataset.health)
+        heroStats.modify('health', delta)
+        renderCharacterSheet()
+      })
+    })
+
+    document.getElementById('health-full').addEventListener('click', () => {
+      heroStats.set('health', 100)
+      renderCharacterSheet()
+    })
+
+    // Tick button
+    document.getElementById('char-tick').addEventListener('click', () => {
+      const expired = heroStats.tick()
+      if (expired.length > 0) {
+        console.log('Expired modifiers:', expired)
+      }
+      renderCharacterSheet()
+    })
+
+    // Reset button
+    document.getElementById('char-reset').addEventListener('click', () => {
+      heroStats.set('strength', 16)
+      heroStats.set('dexterity', 14)
+      heroStats.set('constitution', 12)
+      heroStats.set('intelligence', 10)
+      heroStats.set('wisdom', 13)
+      heroStats.set('charisma', 8)
+      heroStats.set('health', 100)
+      heroStats.clearModifiers()
+      renderCharacterSheet()
+    })
+
+    // Add modifier modal
+    const modifierModal = document.getElementById('modifier-modal')
+
+    document.getElementById('char-add-modifier').addEventListener('click', () => {
+      modifierModal.classList.add('active')
+    })
+
+    document.getElementById('mod-cancel').addEventListener('click', () => {
+      modifierModal.classList.remove('active')
+    })
+
+    document.getElementById('mod-add').addEventListener('click', () => {
+      const stat = document.getElementById('mod-stat').value
+      const name = document.getElementById('mod-name').value || 'Buff'
+      const value = parseFloat(document.getElementById('mod-value').value) || 0
+      const type = document.getElementById('mod-type').value
+      const duration = parseInt(document.getElementById('mod-duration').value) || 0
+
+      heroStats.addModifier(stat, {
+        value,
+        source: name,
+        type,
+        duration: duration === 0 ? 'permanent' : duration
+      })
+
+      modifierModal.classList.remove('active')
+      renderCharacterSheet()
+    })
+
+    modifierModal.addEventListener('click', (e) => {
+      if (e.target === modifierModal) {
+        modifierModal.classList.remove('active')
+      }
+    })
+
+    renderCharacterSheet()
+
+    // ============================================
+    // EXHIBIT 3: SKILL CHECK ARENA
+    // ============================================
+
+    const goblinStats = createStatBlock({
+      strength: { base: 8, min: 1, max: 20 },
+      dexterity: { base: 14, min: 1, max: 20 },
+      constitution: { base: 10, min: 1, max: 20 },
+      intelligence: { base: 6, min: 1, max: 20 },
+      wisdom: { base: 8, min: 1, max: 20 },
+      charisma: { base: 6, min: 1, max: 20 }
+    })
+
+    function renderParticipantStats() {
+      const heroStatsEl = document.getElementById('hero-stats')
+      const goblinStatsEl = document.getElementById('goblin-stats')
+
+      const stats = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma']
+
+      heroStatsEl.innerHTML = stats.map(s =>
+        `<div><span>${s.slice(0,3).toUpperCase()}</span><span>${heroStats.get(s)}</span></div>`
+      ).join('')
+
+      goblinStatsEl.innerHTML = stats.map(s =>
+        `<div><span>${s.slice(0,3).toUpperCase()}</span><span>${goblinStats.get(s)}</span></div>`
+      ).join('')
+    }
+
+    function renderCheckResult(result, side = 'hero', isContest = false) {
+      const diceEl = document.getElementById(`${side}-dice`)
+      const modifierEl = document.getElementById(`${side}-modifier`)
+      const totalEl = document.getElementById(`${side}-total`)
+      const resultEl = document.getElementById(`${side}-result`)
+
+      // Clear and animate dice
+      diceEl.innerHTML = ''
+
+      if (result.rolls) {
+        result.rolls.forEach((roll, i) => {
+          const die = document.createElement('div')
+          die.className = 'arena-die rolling'
+          die.textContent = roll
+          die.style.animationDelay = `${i * 100}ms`
+
+          // For advantage/disadvantage, mark winner/loser
+          if (result.rolls.length === 2) {
+            setTimeout(() => {
+              if (roll === result.roll) {
+                die.classList.add('winner')
+                die.classList.remove('rolling')
+              } else {
+                die.classList.add('loser')
+                die.classList.remove('rolling')
+              }
+            }, 600)
+          } else {
+            setTimeout(() => die.classList.remove('rolling'), 500)
+          }
+
+          diceEl.appendChild(die)
+        })
+      }
+
+      modifierEl.textContent = `${result.modifier >= 0 ? '+' : ''}${result.modifier} (stat mod)${result.bonus ? ` +${result.bonus} (bonus)` : ''}`
+      totalEl.textContent = `= ${result.total}`
+
+      if (!isContest) {
+        resultEl.textContent = result.success
+          ? `✓ SUCCESS (${result.margin >= 0 ? '+' : ''}${result.margin})`
+          : `✗ FAIL (${result.margin})`
+        resultEl.className = `arena-result ${result.success ? 'success' : 'failure'}`
+      }
+    }
+
+    function renderContestResult(heroResult, goblinResult, contestResult) {
+      renderCheckResult({ ...heroResult, rolls: [contestResult.rolls.a], roll: contestResult.rolls.a, modifier: heroResult.modifier, total: contestResult.totals.a }, 'hero', true)
+      renderCheckResult({ ...goblinResult, rolls: [contestResult.rolls.b], roll: contestResult.rolls.b, modifier: goblinResult.modifier, total: contestResult.totals.b }, 'goblin', true)
+
+      const heroResultEl = document.getElementById('hero-result')
+      const goblinResultEl = document.getElementById('goblin-result')
+
+      setTimeout(() => {
+        if (contestResult.winner === 'a') {
+          heroResultEl.textContent = `🏆 WINNER (+${contestResult.margin})`
+          heroResultEl.className = 'arena-result winner'
+          goblinResultEl.textContent = ''
+          goblinResultEl.className = 'arena-result'
+        } else if (contestResult.winner === 'b') {
+          goblinResultEl.textContent = `🏆 WINNER (+${contestResult.margin})`
+          goblinResultEl.className = 'arena-result winner'
+          heroResultEl.textContent = ''
+          heroResultEl.className = 'arena-result'
+        } else {
+          heroResultEl.textContent = '= TIE'
+          heroResultEl.className = 'arena-result tie'
+          goblinResultEl.textContent = '= TIE'
+          goblinResultEl.className = 'arena-result tie'
+        }
+      }, 700)
+    }
+
+    document.getElementById('check-dc').addEventListener('input', (e) => {
+      document.getElementById('dc-display').textContent = e.target.value
+    })
+
+    document.getElementById('roll-check').addEventListener('click', () => {
+      const stat = document.getElementById('check-stat').value
+      const dc = parseInt(document.getElementById('check-dc').value)
+      const advantage = document.getElementById('check-advantage').checked
+      const disadvantage = document.getElementById('check-disadvantage').checked
+
+      const result = check(heroStats, stat, {
+        difficulty: dc,
+        advantage,
+        disadvantage
+      })
+
+      renderCheckResult(result, 'hero', false)
+
+      // Clear goblin side
+      document.getElementById('goblin-dice').innerHTML = ''
+      document.getElementById('goblin-modifier').textContent = ''
+      document.getElementById('goblin-total').textContent = ''
+      document.getElementById('goblin-result').textContent = ''
+    })
+
+    document.getElementById('run-contest').addEventListener('click', () => {
+      const stat = document.getElementById('check-stat').value
+
+      const contestResult = contest(heroStats, stat, goblinStats, stat)
+
+      // Calculate modifiers for display
+      const heroStatValue = heroStats.get(stat)
+      const goblinStatValue = goblinStats.get(stat)
+      const heroMod = Math.floor((heroStatValue - 10) / 2)
+      const goblinMod = Math.floor((goblinStatValue - 10) / 2)
+
+      renderContestResult(
+        { modifier: heroMod },
+        { modifier: goblinMod },
+        contestResult
+      )
+    })
+
+    // Initial check display
+    renderParticipantStats()
+    const initialCheck = check(heroStats, 'strength', { difficulty: 15 })
+    renderCheckResult(initialCheck, 'hero', false)
+
+    // ============================================
+    // EXHIBIT 4: LOOT TABLE
+    // ============================================
+
+    const lootTable = [
+      { weight: 50, value: { name: 'Gold Coins', icon: '🪙', rarity: 'COMMON' } },
+      { weight: 25, value: { name: 'Health Potion', icon: '🧪', rarity: 'COMMON' } },
+      { weight: 15, value: { name: 'Magic Scroll', icon: '📜', rarity: 'UNCOMMON' } },
+      { weight: 8, value: { name: 'Enchanted Dagger', icon: '🗡️', rarity: 'RARE' } },
+      { weight: 2, value: { name: 'Dragon Scale', icon: '💎', rarity: 'LEGENDARY' } }
+    ]
+
+    const lootState = {
+      history: [],
+      spinning: false,
+      currentRotation: 0
+    }
+
+    function renderWheel() {
+      const wheel = document.getElementById('loot-wheel')
+      const totalWeight = lootTable.reduce((sum, e) => sum + e.weight, 0)
+
+      let gradientParts = []
+      let currentAngle = 0
+
+      const colors = [
+        'var(--accent-yellow)',
+        'var(--accent-green)',
+        'var(--accent-blue)',
+        'var(--accent-purple)',
+        'var(--accent-red)'
+      ]
+
+      lootTable.forEach((entry, i) => {
+        const sliceAngle = (entry.weight / totalWeight) * 360
+        const startAngle = currentAngle
+        const endAngle = currentAngle + sliceAngle
+
+        gradientParts.push(`${colors[i]} ${startAngle}deg ${endAngle}deg`)
+        currentAngle = endAngle
+      })
+
+      wheel.style.background = `conic-gradient(${gradientParts.join(', ')})`
+    }
+
+    function spinWheel() {
+      if (lootState.spinning) return
+      lootState.spinning = true
+
+      const wheel = document.getElementById('loot-wheel')
+      const result = rollTable(lootTable)
+
+      // Calculate where this result should land (top = 0 degrees)
+      const totalWeight = lootTable.reduce((sum, e) => sum + e.weight, 0)
+      let targetAngle = 0
+      let cumulative = 0
+
+      for (const entry of lootTable) {
+        const sliceAngle = (entry.weight / totalWeight) * 360
+        if (entry.value.name === result.name) {
+          // Land in the middle of this slice
+          targetAngle = cumulative + sliceAngle / 2
+          break
+        }
+        cumulative += sliceAngle
+      }
+
+      // Spin multiple times plus land at target
+      const spins = 5 + Math.random() * 3
+      const finalRotation = lootState.currentRotation + (spins * 360) + (360 - targetAngle)
+
+      wheel.style.transform = `rotate(${finalRotation}deg)`
+      lootState.currentRotation = finalRotation
+
+      setTimeout(() => {
+        lootState.spinning = false
+        lootState.history.push(result)
+        renderLootResult(result)
+        renderLootHistory()
+      }, 3000)
+    }
+
+    function renderLootResult(result) {
+      document.getElementById('result-icon').textContent = result.icon
+      document.getElementById('result-name').textContent = result.name
+
+      const totalWeight = lootTable.reduce((sum, e) => sum + e.weight, 0)
+      const entry = lootTable.find(e => e.value.name === result.name)
+      const percent = ((entry.weight / totalWeight) * 100).toFixed(0)
+
+      document.getElementById('result-rarity').textContent = `${result.rarity} - ${percent}% chance`
+    }
+
+    function renderLootHistory() {
+      const historyEl = document.getElementById('loot-history')
+      const statsEl = document.getElementById('loot-stats')
+
+      // Show last 20 items
+      const recent = lootState.history.slice(-20)
+      historyEl.innerHTML = recent.map(item =>
+        `<span class="loot-history-item" title="${item.name}">${item.icon}</span>`
+      ).join('')
+
+      // Calculate stats
+      if (lootState.history.length > 0) {
+        const counts = {}
+        lootState.history.forEach(item => {
+          counts[item.name] = (counts[item.name] || 0) + 1
+        })
+
+        const total = lootState.history.length
+        statsEl.innerHTML = `
+          <span>${total} spins</span>
+          ${Object.entries(counts).map(([name, count]) =>
+            `<span>${name}: ${((count / total) * 100).toFixed(0)}%</span>`
+          ).join('')}
+        `
+      }
+    }
+
+    document.getElementById('spin-wheel').addEventListener('click', spinWheel)
+
+    document.getElementById('spin-10').addEventListener('click', async () => {
+      for (let i = 0; i < 10; i++) {
+        const result = rollTable(lootTable)
+        lootState.history.push(result)
+      }
+      renderLootHistory()
+      // Show the last result
+      renderLootResult(lootState.history[lootState.history.length - 1])
+    })
+
+    document.getElementById('reset-history').addEventListener('click', () => {
+      lootState.history = []
+      renderLootHistory()
+      document.getElementById('loot-stats').innerHTML = ''
+    })
+
+    // Initialize wheel
+    renderWheel()
+
+    // Pre-spin to show initial result
+    lootState.history = [
+      lootTable[0].value, // Gold
+      lootTable[0].value, // Gold
+      lootTable[1].value, // Potion
+      lootTable[0].value, // Gold
+      lootTable[1].value  // Potion
+    ]
+    renderLootResult(lootTable[1].value) // Show potion as current
+    renderLootHistory()
+
+    // ============================================
+    // TEST RUNNER
+    // ============================================
+
+    const testRunner = {
+      tests: [],
+      results: [],
+      running: false,
+
+      register(name, fn) {
+        this.tests.push({ name, fn })
+      },
+
+      async run() {
+        if (this.running) return
+        this.running = true
+        this.results = []
+
+        const output = document.getElementById('test-output')
+        const progressFill = document.getElementById('progress-fill')
+        const progressText = document.getElementById('progress-text')
+        const summary = document.getElementById('test-summary')
+        const passedCount = document.getElementById('passed-count')
+        const failedCount = document.getElementById('failed-count')
+        const skippedCount = document.getElementById('skipped-count')
+        const runBtn = document.getElementById('run-tests')
+
+        runBtn.disabled = true
+        output.innerHTML = ''
+        summary.classList.add('hidden')
+        progressFill.style.width = '0%'
+        progressFill.className = 'test-progress-fill'
+
+        let passed = 0
+        let failed = 0
+
+        for (let i = 0; i < this.tests.length; i++) {
+          const test = this.tests[i]
+          const progress = ((i + 1) / this.tests.length) * 100
+
+          progressFill.style.width = `${progress}%`
+          progressText.textContent = `Running: ${test.name}`
+
+          try {
+            await test.fn()
+            passed++
+            this.results.push({ name: test.name, passed: true })
+            output.innerHTML += `
+              <div class="test-item">
+                <span class="test-icon pass">✓</span>
+                <span class="test-name">${escapeHtml(test.name)}</span>
+              </div>
+            `
+          } catch (e) {
+            failed++
+            this.results.push({ name: test.name, passed: false, error: e.message })
+            output.innerHTML += `
+              <div class="test-item">
+                <span class="test-icon fail">✗</span>
+                <div>
+                  <div class="test-name">${escapeHtml(test.name)}</div>
+                  <div class="test-error">${escapeHtml(e.message)}</div>
+                </div>
+              </div>
+            `
+          }
+
+          output.scrollTop = output.scrollHeight
+          await new Promise(r => setTimeout(r, 20))
+        }
+
+        progressFill.classList.add(failed === 0 ? 'success' : 'failure')
+        progressText.textContent = `Complete: ${passed}/${this.tests.length} passed`
+
+        passedCount.textContent = passed
+        failedCount.textContent = failed
+        skippedCount.textContent = 0
+        summary.classList.remove('hidden')
+
+        runBtn.disabled = false
+        this.running = false
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+    }
+
+    document.getElementById('run-tests').addEventListener('click', () => testRunner.run())
+
+    // ============================================
+    // REGISTER TESTS
+    // ============================================
+
+    // Dice tests
+    testRunner.register('roll: basic 1d20', () => {
+      const result = roll('1d20')
+      if (result.total < 1 || result.total > 20) throw new Error(`Expected 1-20, got ${result.total}`)
+    })
+
+    testRunner.register('roll: 2d6 returns correct structure', () => {
+      const result = roll('2d6')
+      if (!result.rolls || result.rolls.length < 2) throw new Error('Expected at least 2 rolls')
+      if (result.total !== result.rolls.reduce((a, b) => a + b, 0)) throw new Error('Total mismatch')
+    })
+
+    testRunner.register('roll: modifier 2d6+5', () => {
+      const result = roll('2d6+5')
+      if (result.modifier !== 5) throw new Error(`Expected modifier 5, got ${result.modifier}`)
+    })
+
+    testRunner.register('roll: negative modifier 1d20-3', () => {
+      const result = roll('1d20-3')
+      if (result.modifier !== -3) throw new Error(`Expected modifier -3, got ${result.modifier}`)
+    })
+
+    testRunner.register('roll: keep highest 4d6kh3', () => {
+      const result = roll('4d6kh3')
+      if (result.kept.length !== 3) throw new Error(`Expected 3 kept dice, got ${result.kept.length}`)
+    })
+
+    testRunner.register('roll: drop lowest 4d6dl1', () => {
+      const result = roll('4d6dl1')
+      if (result.kept.length !== 3) throw new Error(`Expected 3 kept dice, got ${result.kept.length}`)
+    })
+
+    testRunner.register('roll: ParseError on invalid notation', () => {
+      try {
+        roll('invalid')
+        throw new Error('Expected ParseError')
+      } catch (e) {
+        if (!(e instanceof ParseError)) throw new Error(`Expected ParseError, got ${e.constructor.name}`)
+      }
+    })
+
+    testRunner.register('roll: ParseError on empty string', () => {
+      try {
+        roll('')
+        throw new Error('Expected ParseError')
+      } catch (e) {
+        if (!(e instanceof ParseError)) throw e
+      }
+    })
+
+    testRunner.register('roll: ParseError on zero dice', () => {
+      try {
+        roll('0d6')
+        throw new Error('Expected ParseError')
+      } catch (e) {
+        if (!(e instanceof ParseError)) throw e
+      }
+    })
+
+    // Stat block tests
+    testRunner.register('createStatBlock: creates with base values', () => {
+      const stats = createStatBlock({ str: { base: 10 } })
+      if (stats.get('str') !== 10) throw new Error(`Expected 10, got ${stats.get('str')}`)
+    })
+
+    testRunner.register('createStatBlock: respects min bound', () => {
+      const stats = createStatBlock({ str: { base: 10, min: 1 } })
+      stats.set('str', -5)
+      if (stats.get('str') !== 1) throw new Error(`Expected 1, got ${stats.get('str')}`)
+    })
+
+    testRunner.register('createStatBlock: respects max bound', () => {
+      const stats = createStatBlock({ str: { base: 10, max: 20 } })
+      stats.set('str', 100)
+      if (stats.get('str') !== 20) throw new Error(`Expected 20, got ${stats.get('str')}`)
+    })
+
+    testRunner.register('createStatBlock: modify adds delta', () => {
+      const stats = createStatBlock({ str: { base: 10 } })
+      stats.modify('str', 5)
+      if (stats.getBase('str') !== 15) throw new Error(`Expected 15, got ${stats.getBase('str')}`)
+    })
+
+    testRunner.register('createStatBlock: has returns true for existing stat', () => {
+      const stats = createStatBlock({ str: { base: 10 } })
+      if (!stats.has('str')) throw new Error('Expected has(str) to be true')
+    })
+
+    testRunner.register('createStatBlock: has returns false for non-existing stat', () => {
+      const stats = createStatBlock({ str: { base: 10 } })
+      if (stats.has('dex')) throw new Error('Expected has(dex) to be false')
+    })
+
+    testRunner.register('createStatBlock: stats() returns stat names', () => {
+      const stats = createStatBlock({ str: { base: 10 }, dex: { base: 14 } })
+      const names = stats.stats()
+      if (!names.includes('str') || !names.includes('dex')) throw new Error('Missing stat names')
+    })
+
+    // Modifier tests
+    testRunner.register('addModifier: applies flat modifier', () => {
+      const stats = createStatBlock({ str: { base: 10 } })
+      stats.addModifier('str', { value: 5, source: 'buff' })
+      if (stats.get('str') !== 15) throw new Error(`Expected 15, got ${stats.get('str')}`)
+    })
+
+    testRunner.register('addModifier: applies multiply modifier', () => {
+      const stats = createStatBlock({ str: { base: 10 } })
+      stats.addModifier('str', { value: 2, source: 'double', type: 'multiply' })
+      if (stats.get('str') !== 20) throw new Error(`Expected 20, got ${stats.get('str')}`)
+    })
+
+    testRunner.register('removeModifier: removes by source', () => {
+      const stats = createStatBlock({ str: { base: 10 } })
+      stats.addModifier('str', { value: 5, source: 'buff' })
+      stats.removeModifier('str', 'buff')
+      if (stats.get('str') !== 10) throw new Error(`Expected 10, got ${stats.get('str')}`)
+    })
+
+    testRunner.register('tick: decrements duration', () => {
+      const stats = createStatBlock({ str: { base: 10 } })
+      stats.addModifier('str', { value: 5, source: 'buff', duration: 2 })
+      stats.tick()
+      const duration = stats.getRemainingDuration('str', 'buff')
+      if (duration !== 1) throw new Error(`Expected 1, got ${duration}`)
+    })
+
+    testRunner.register('tick: removes expired modifiers', () => {
+      const stats = createStatBlock({ str: { base: 10 } })
+      stats.addModifier('str', { value: 5, source: 'buff', duration: 1 })
+      stats.tick()
+      if (stats.get('str') !== 10) throw new Error(`Expected 10, got ${stats.get('str')}`)
+    })
+
+    testRunner.register('clearModifiers: removes all modifiers', () => {
+      const stats = createStatBlock({ str: { base: 10 } })
+      stats.addModifier('str', { value: 5, source: 'buff1' })
+      stats.addModifier('str', { value: 3, source: 'buff2' })
+      stats.clearModifiers()
+      if (stats.get('str') !== 10) throw new Error(`Expected 10, got ${stats.get('str')}`)
+    })
+
+    // Check tests
+    testRunner.register('check: returns CheckResult structure', () => {
+      const stats = createStatBlock({ str: { base: 14 } })
+      const result = check(stats, 'str', { difficulty: 10 })
+      if (typeof result.success !== 'boolean') throw new Error('Missing success')
+      if (typeof result.total !== 'number') throw new Error('Missing total')
+      if (typeof result.margin !== 'number') throw new Error('Missing margin')
+    })
+
+    testRunner.register('check: calculates D&D modifier correctly', () => {
+      const stats = createStatBlock({ str: { base: 16 } })
+      const result = check(stats, 'str', { difficulty: 10 })
+      if (result.modifier !== 3) throw new Error(`Expected modifier 3, got ${result.modifier}`)
+    })
+
+    testRunner.register('check: throws on non-existent stat', () => {
+      const stats = createStatBlock({ str: { base: 10 } })
+      try {
+        check(stats, 'dex', { difficulty: 10 })
+        throw new Error('Expected TypeError')
+      } catch (e) {
+        if (!(e instanceof TypeError)) throw e
+      }
+    })
+
+    // Contest tests
+    testRunner.register('contest: returns winner a, b, or tie', () => {
+      const statsA = createStatBlock({ str: { base: 16 } })
+      const statsB = createStatBlock({ str: { base: 8 } })
+      const result = contest(statsA, 'str', statsB, 'str')
+      if (!['a', 'b', 'tie'].includes(result.winner)) throw new Error(`Invalid winner: ${result.winner}`)
+    })
+
+    testRunner.register('contest: with raw modifiers', () => {
+      const result = contest(5, 3)
+      if (!['a', 'b', 'tie'].includes(result.winner)) throw new Error(`Invalid winner: ${result.winner}`)
+    })
+
+    // Derived stat tests
+    testRunner.register('createDerivedStat: computes from formula', () => {
+      const stats = createStatBlock({ str: { base: 16 } })
+      createDerivedStat(stats, 'carry', s => s.get('str') * 15)
+      if (stats.get('carry') !== 240) throw new Error(`Expected 240, got ${stats.get('carry')}`)
+    })
+
+    testRunner.register('createDerivedStat: updates when dependency changes', () => {
+      const stats = createStatBlock({ str: { base: 16 } })
+      createDerivedStat(stats, 'carry', s => s.get('str') * 15)
+      stats.set('str', 20)
+      if (stats.get('carry') !== 300) throw new Error(`Expected 300, got ${stats.get('carry')}`)
+    })
+
+    testRunner.register('isDerived: returns true for derived stats', () => {
+      const stats = createStatBlock({ str: { base: 16 } })
+      createDerivedStat(stats, 'carry', s => s.get('str') * 15)
+      if (!stats.isDerived('carry')) throw new Error('Expected isDerived to be true')
+    })
+
+    testRunner.register('isDerived: returns false for base stats', () => {
+      const stats = createStatBlock({ str: { base: 16 } })
+      if (stats.isDerived('str')) throw new Error('Expected isDerived to be false')
+    })
+
+    // Roll table tests
+    testRunner.register('rollTable: returns a value from entries', () => {
+      const entries = [
+        { weight: 1, value: 'a' },
+        { weight: 1, value: 'b' }
+      ]
+      const result = rollTable(entries)
+      if (!['a', 'b'].includes(result)) throw new Error(`Unexpected result: ${result}`)
+    })
+
+    testRunner.register('rollTable: throws on empty table', () => {
+      try {
+        rollTable([])
+        throw new Error('Expected ValidationError')
+      } catch (e) {
+        if (!(e instanceof ValidationError)) throw e
+      }
+    })
+
+    testRunner.register('rollTable: throws on negative weight', () => {
+      try {
+        rollTable([{ weight: -1, value: 'a' }])
+        throw new Error('Expected ValidationError')
+      } catch (e) {
+        if (!(e instanceof ValidationError)) throw e
+      }
+    })
+
+    testRunner.register('rollTable: throws on all zero weights', () => {
+      try {
+        rollTable([{ weight: 0, value: 'a' }])
+        throw new Error('Expected ValidationError')
+      } catch (e) {
+        if (!(e instanceof ValidationError)) throw e
+      }
+    })
+
+    // Serialization tests
+    testRunner.register('toJSON: serializes stat block', () => {
+      const stats = createStatBlock({ str: { base: 16 } })
+      stats.addModifier('str', { value: 4, source: 'buff', duration: 3 })
+      const json = stats.toJSON()
+      if (json.version !== 1) throw new Error('Expected version 1')
+      if (json.stats.str !== 16) throw new Error('Expected str base 16')
+    })
+
+    testRunner.register('fromJSON: restores stat block', () => {
+      const original = createStatBlock({ str: { base: 16 } })
+      original.addModifier('str', { value: 4, source: 'buff', duration: 3 })
+      const json = original.toJSON()
+
+      const restored = createStatBlock({ str: { base: 10 } }, { fromJSON: json })
+      if (restored.getBase('str') !== 16) throw new Error('Base not restored')
+      if (restored.get('str') !== 20) throw new Error('Modifier not restored')
+    })
+
+    // Event tests
+    testRunner.register('onChange: fires on stat change', () => {
+      const stats = createStatBlock({ str: { base: 10 } })
+      let fired = false
+      stats.onChange(() => { fired = true })
+      stats.set('str', 15)
+      if (!fired) throw new Error('onChange not fired')
+    })
+
+    testRunner.register('onStat: fires only for specific stat', () => {
+      const stats = createStatBlock({ str: { base: 10 }, dex: { base: 10 } })
+      let strFired = false
+      stats.onStat('str', () => { strFired = true })
+      stats.set('dex', 15)
+      if (strFired) throw new Error('onStat fired for wrong stat')
+      stats.set('str', 15)
+      if (!strFired) throw new Error('onStat not fired for correct stat')
+    })
+
+    testRunner.register('onChange: unsubscribe works', () => {
+      const stats = createStatBlock({ str: { base: 10 } })
+      let count = 0
+      const unsub = stats.onChange(() => { count++ })
+      stats.set('str', 15)
+      unsub()
+      stats.set('str', 20)
+      if (count !== 1) throw new Error(`Expected 1 call, got ${count}`)
+    })
+
+  </script>
+</body>
+</html>
