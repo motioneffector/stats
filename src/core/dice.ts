@@ -2,6 +2,8 @@ import { ParseError } from '../errors'
 import type { RollResult, RollOptions } from '../types'
 
 const MAX_EXPLOSION_DEPTH = 100
+const MAX_DICE_COUNT = 10000
+const MAX_DIE_SIDES = 1000000
 
 type DieRoll = {
   value: number
@@ -72,11 +74,17 @@ function parseNotation(notation: string): ParsedNotation {
   if (count < 0) {
     throw new ParseError('Cannot roll negative number of dice', notation)
   }
+  if (count > MAX_DICE_COUNT) {
+    throw new ParseError(`Cannot roll more than ${MAX_DICE_COUNT} dice`, notation)
+  }
   if (sides === 0) {
     throw new ParseError('Die must have at least 1 side', notation)
   }
   if (sides < 0) {
     throw new ParseError('Die cannot have negative sides', notation)
+  }
+  if (sides > MAX_DIE_SIDES) {
+    throw new ParseError(`Die cannot have more than ${MAX_DIE_SIDES} sides`, notation)
   }
 
   // Parse remaining modifiers
