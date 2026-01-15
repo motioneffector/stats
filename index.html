@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>@motioneffector/stats - Demo</title>
-  <link rel="stylesheet" href="demo-files/styles.css">
+  <link rel="stylesheet" href="demo-files/demo.css">
 </head>
 <body>
   <div class="page">
@@ -24,9 +24,42 @@
       </nav>
     </header>
 
-    <main class="exhibits">
+    <main>
+      <!-- Test Runner (FIRST) -->
+      <section class="test-runner" id="test-runner">
+        <div class="test-runner-header">
+          <h2 class="test-runner-title">Test Runner</h2>
+        </div>
+        <div class="test-runner-content">
+          <!-- Control bar: progress bar + buttons, above output console -->
+          <div class="test-control-bar">
+            <div class="test-progress">
+              <div class="test-progress-bar">
+                <div class="test-progress-fill" id="progress-fill"></div>
+              </div>
+              <div class="test-progress-text" id="progress-text">Ready</div>
+            </div>
+            <div class="test-runner-actions">
+              <button class="btn btn-primary" id="run-all-tests">
+                <span class="btn-icon">▶</span>
+                <span>Run All Tests</span>
+              </button>
+              <button class="btn btn-secondary" id="reset-page">
+                <span class="btn-icon">↻</span>
+                <span>Reset Page</span>
+              </button>
+            </div>
+          </div>
+          <!-- Output console below the control bar -->
+          <div class="test-output" id="test-output">
+            <div class="test-output-placeholder">Click "Run All Tests" to execute the test suite and see a live demonstration</div>
+          </div>
+          <div class="test-summary hidden" id="test-summary"></div>
+        </div>
+      </section>
+
       <!-- Exhibit 1: Dice Tray -->
-      <section class="exhibit">
+      <section class="exhibit" id="exhibit-dice-tray">
         <div class="exhibit-header">
           <h2 class="exhibit-title">Dice Tray</h2>
           <p class="exhibit-description">Roll dice with full notation support: keep/drop highest/lowest, exploding dice, rerolls, and modifiers.</p>
@@ -63,7 +96,7 @@
       </section>
 
       <!-- Exhibit 2: Character Sheet -->
-      <section class="exhibit">
+      <section class="exhibit" id="exhibit-character-sheet">
         <div class="exhibit-header">
           <h2 class="exhibit-title">Character Sheet</h2>
           <p class="exhibit-description">Manage stats with bounds, modifiers (flat/multiply), duration tracking, and derived stats.</p>
@@ -115,7 +148,7 @@
       </section>
 
       <!-- Exhibit 3: Skill Check Arena -->
-      <section class="exhibit">
+      <section class="exhibit" id="exhibit-skill-check-arena">
         <div class="exhibit-header">
           <h2 class="exhibit-title">Skill Check Arena</h2>
           <p class="exhibit-description">Make skill checks with advantage/disadvantage, or run contests between two participants.</p>
@@ -196,7 +229,7 @@
       </section>
 
       <!-- Exhibit 4: Loot Table -->
-      <section class="exhibit">
+      <section class="exhibit" id="exhibit-loot-table">
         <div class="exhibit-header">
           <h2 class="exhibit-title">Loot Table</h2>
           <p class="exhibit-description">Roll on weighted random tables with visual probability distribution.</p>
@@ -233,95 +266,59 @@
       </section>
     </main>
 
-    <footer class="test-runner">
-      <div class="test-runner-header">
-        <h2 class="test-runner-title">Test Suite</h2>
-        <div class="test-runner-actions">
-          <button class="btn btn-primary" id="run-tests">Run All Tests</button>
-          <button class="btn btn-secondary" id="reset-page">Reset Page</button>
+    <!-- Add Modifier Modal -->
+    <div class="modal-overlay" id="modifier-modal">
+      <div class="modal">
+        <div class="modal-title">Add Modifier</div>
+        <div class="modal-form">
+          <label>
+            Stat
+            <select class="input" id="mod-stat">
+              <option value="strength">Strength</option>
+              <option value="dexterity">Dexterity</option>
+              <option value="constitution">Constitution</option>
+              <option value="intelligence">Intelligence</option>
+              <option value="wisdom">Wisdom</option>
+              <option value="charisma">Charisma</option>
+            </select>
+          </label>
+          <label>
+            Name
+            <input type="text" class="input" id="mod-name" value="Buff" placeholder="e.g., Bull's Strength">
+          </label>
+          <label>
+            Value
+            <input type="number" class="input" id="mod-value" value="4">
+          </label>
+          <label>
+            Type
+            <select class="input" id="mod-type">
+              <option value="flat">Flat (+/-)</option>
+              <option value="multiply">Multiply (x)</option>
+            </select>
+          </label>
+          <label>
+            Duration
+            <input type="number" class="input" id="mod-duration" value="3" min="1" placeholder="Rounds (0 = permanent)">
+          </label>
         </div>
-      </div>
-      <div class="test-runner-content">
-        <div class="test-progress">
-          <div class="test-progress-bar">
-            <div class="test-progress-fill" id="progress-fill"></div>
-          </div>
-          <div class="test-progress-text" id="progress-text">Ready to run tests</div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" id="mod-cancel">Cancel</button>
+          <button class="btn btn-primary" id="mod-add">Add</button>
         </div>
-        <div class="test-output" id="test-output">
-          <div class="test-output-empty">Click "Run Tests" to execute the test suite</div>
-        </div>
-        <div class="test-summary hidden" id="test-summary">
-          <div class="test-summary-item passed">
-            <span>✓</span>
-            <span id="passed-count">0</span> passed
-          </div>
-          <div class="test-summary-item failed">
-            <span>✗</span>
-            <span id="failed-count">0</span> failed
-          </div>
-          <div class="test-summary-item skipped">
-            <span>○</span>
-            <span id="skipped-count">0</span> skipped
-          </div>
-        </div>
-        <div class="demo-status" id="demo-status"></div>
-      </div>
-    </footer>
-  </div>
-
-  <!-- Add Modifier Modal -->
-  <div class="modal-overlay" id="modifier-modal">
-    <div class="modal">
-      <div class="modal-title">Add Modifier</div>
-      <div class="modal-form">
-        <label>
-          Stat
-          <select class="input" id="mod-stat">
-            <option value="strength">Strength</option>
-            <option value="dexterity">Dexterity</option>
-            <option value="constitution">Constitution</option>
-            <option value="intelligence">Intelligence</option>
-            <option value="wisdom">Wisdom</option>
-            <option value="charisma">Charisma</option>
-          </select>
-        </label>
-        <label>
-          Name
-          <input type="text" class="input" id="mod-name" value="Buff" placeholder="e.g., Bull's Strength">
-        </label>
-        <label>
-          Value
-          <input type="number" class="input" id="mod-value" value="4">
-        </label>
-        <label>
-          Type
-          <select class="input" id="mod-type">
-            <option value="flat">Flat (+/-)</option>
-            <option value="multiply">Multiply (x)</option>
-          </select>
-        </label>
-        <label>
-          Duration
-          <input type="number" class="input" id="mod-duration" value="3" min="1" placeholder="Rounds (0 = permanent)">
-        </label>
-      </div>
-      <div class="modal-actions">
-        <button class="btn btn-secondary" id="mod-cancel">Cancel</button>
-        <button class="btn btn-primary" id="mod-add">Add</button>
       </div>
     </div>
   </div>
 
+  <!-- Library (from dist) -->
   <script type="module">
-    import { initAllExhibits } from './demo-files/exhibits.js'
-    import { initTestRunner } from './demo-files/tests.js'
-    import { initDemoMode } from './demo-files/demo-mode.js'
-
-    // Initialize everything when DOM is ready
-    initAllExhibits()
-    initTestRunner()
-    initDemoMode()
+    import * as Library from './dist/index.js'
+    window.Library = Library
   </script>
+
+  <!-- Demo scripts (order matters) -->
+  <script src="demo-files/test-runner.js"></script>
+  <script type="module" src="demo-files/demo.js"></script>
+  <script type="module" src="demo-files/tests.js"></script>
 </body>
 </html>

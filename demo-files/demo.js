@@ -94,8 +94,11 @@ export function initDiceTray() {
     })
   })
 
-  // Initial roll
-  rollDice()
+  // Clear output areas (no auto-play)
+  document.getElementById('dice-kept').innerHTML = ''
+  document.getElementById('dice-dropped').innerHTML = ''
+  document.getElementById('dice-total').textContent = '0'
+  document.getElementById('dice-breakdown').textContent = ''
 }
 
 // ============================================
@@ -112,13 +115,7 @@ export const heroStats = createStatBlock({
   health: { base: 75, min: 0, max: 100 }
 })
 
-// Add initial modifier
-heroStats.addModifier('strength', {
-  value: 4,
-  source: "Bull's Strength",
-  type: 'flat',
-  duration: 3
-})
+// Do NOT add initial modifiers - violates no auto-play
 
 // Create derived stats
 createDerivedStat(heroStats, 'carryCapacity', (s) => s.get('strength') * 15)
@@ -333,7 +330,7 @@ export function initCharacterSheet() {
     }
   })
 
-  renderCharacterSheet()
+  // Do NOT auto-render - wait for user interaction
 }
 
 // ============================================
@@ -481,10 +478,18 @@ export function initSkillCheckArena() {
     )
   })
 
-  // Initial check display
+  // Render participant stats but don't auto-run checks
   renderParticipantStats()
-  const initialCheck = check(heroStats, 'strength', { difficulty: 15 })
-  renderCheckResult(initialCheck, 'hero', false)
+
+  // Clear output areas (no auto-play)
+  document.getElementById('hero-dice').innerHTML = ''
+  document.getElementById('hero-modifier').textContent = ''
+  document.getElementById('hero-total').textContent = ''
+  document.getElementById('hero-result').textContent = ''
+  document.getElementById('goblin-dice').innerHTML = ''
+  document.getElementById('goblin-modifier').textContent = ''
+  document.getElementById('goblin-total').textContent = ''
+  document.getElementById('goblin-result').textContent = ''
 }
 
 // ============================================
@@ -629,16 +634,9 @@ export function initLootTable() {
   // Initialize wheel
   renderWheel()
 
-  // Pre-spin to show initial result
-  lootState.history = [
-    lootTable[0].value, // Gold
-    lootTable[0].value, // Gold
-    lootTable[1].value, // Potion
-    lootTable[0].value, // Gold
-    lootTable[1].value  // Potion
-  ]
-  renderLootResult(lootTable[1].value) // Show potion as current
-  renderLootHistory()
+  // Clear output areas (no auto-play - no fake results)
+  document.getElementById('loot-history').innerHTML = ''
+  document.getElementById('loot-stats').innerHTML = ''
 }
 
 // ============================================
@@ -651,3 +649,6 @@ export function initAllExhibits() {
   initSkillCheckArena()
   initLootTable()
 }
+
+// Auto-initialize when the module loads
+initAllExhibits()

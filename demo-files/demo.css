@@ -448,8 +448,21 @@ textarea.input {
   padding: var(--space-lg);
 }
 
+.test-control-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
 .test-progress {
-  margin-bottom: var(--space-lg);
+  flex: 1;  /* Progress bar fills available space */
+}
+
+.test-runner-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;  /* Buttons maintain their size */
 }
 
 .test-progress-bar {
@@ -491,7 +504,8 @@ textarea.input {
   font-size: var(--font-size-sm);
 }
 
-.test-output-empty {
+.test-output-empty,
+.test-output-placeholder {
   padding: var(--space-xl);
   text-align: center;
   color: var(--text-muted);
@@ -524,6 +538,25 @@ textarea.input {
 
 .test-name {
   color: var(--text-primary);
+}
+
+.test-name.integrity-test {
+  color: var(--accent-purple);
+  font-weight: 500;
+}
+
+.test-item[data-category="integrity"] .test-name {
+  color: var(--accent-purple);
+  font-weight: 500;
+}
+
+.test-item.demo-phase {
+  background: var(--bg-tertiary);
+  font-weight: 600;
+}
+
+.test-item.demo-step {
+  opacity: 0.8;
 }
 
 .test-error {
