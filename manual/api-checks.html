@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checks API - @motioneffector/stats</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/stats</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/stats" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/stats" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/stats</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-character.html">Your First Character</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-stat-blocks.html">Stat Blocks</a></li>
+<li><a href="concept-dice-notation.html">Dice Notation</a></li>
+<li><a href="concept-modifiers.html">Modifiers</a></li>
+<li><a href="concept-checks-and-contests.html">Checks and Contests</a></li>
+<li><a href="concept-derived-stats.html">Derived Stats</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-rolling-dice.html">Rolling Dice</a></li>
+<li><a href="guide-working-with-modifiers.html">Working with Modifiers</a></li>
+<li><a href="guide-making-checks.html">Making Checks</a></li>
+<li><a href="guide-using-derived-stats.html">Using Derived Stats</a></li>
+<li><a href="guide-saving-and-loading-state.html">Saving and Loading State</a></li>
+<li><a href="guide-using-stat-templates.html">Using Stat Templates</a></li>
+<li><a href="guide-using-roll-tables.html">Using Roll Tables</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-dice.html">Dice API</a></li>
+<li><a href="api-stat-block.html">Stat Block API</a></li>
+<li><a href="api-checks.html">Checks API</a></li>
+<li><a href="api-utilities.html">Utilities API</a></li>
+<li><a href="api-types.html">Types</a></li>
+<li><a href="api-errors.html">Errors</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Checks API</h1>
+<p>Functions for skill checks, saving throws, contests, and derived stats.</p>
+<hr>
+<h2><code>check()</code></h2>
+<p>Perform a skill check against a difficulty class.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">function check(
+  statBlock: StatBlock,
+  statName: string,
+  options: CheckOptions
+): CheckResult
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>statBlock</code></td>
+<td><code>StatBlock</code></td>
+<td>Yes</td>
+<td>The stat block to check against</td>
+</tr>
+<tr>
+<td><code>statName</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>Name of the stat to use</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><code>CheckOptions</code></td>
+<td>Yes</td>
+<td>Check configuration</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>CheckResult</code> — The check result</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">import { createStatBlock, check } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({ strength: { base: 16 } })
+
+const result = check(hero, &#39;strength&#39;, {
+  difficulty: 15,
+  advantage: true,
+  bonus: 2
+})
+
+console.log(result.success) // true or false
+console.log(result.total)   // roll + modifier + bonus
+</code></pre>
+<p><strong>Throws:</strong></p>
+<ul>
+<li><code>TypeError</code> — If stat doesn&#39;t exist</li>
+</ul>
+<hr>
+<h2><code>saveThrow()</code></h2>
+<p>Perform a simple saving throw (returns boolean).</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">function saveThrow(
+  statBlock: StatBlock,
+  statName: string,
+  difficulty: number
+): boolean
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>statBlock</code></td>
+<td><code>StatBlock</code></td>
+<td>Yes</td>
+<td>The stat block</td>
+</tr>
+<tr>
+<td><code>statName</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>Name of the stat</td>
+</tr>
+<tr>
+<td><code>difficulty</code></td>
+<td><code>number</code></td>
+<td>Yes</td>
+<td>Target DC</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>boolean</code> — <code>true</code> if successful</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">import { createStatBlock, saveThrow } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({ constitution: { base: 14 } })
+
+if (saveThrow(hero, &#39;constitution&#39;, 12)) {
+  console.log(&#39;Resisted!&#39;)
+}
+</code></pre>
+<hr>
+<h2><code>contest()</code></h2>
+<p>Run an opposed contest between two participants.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">// With stat blocks
+function contest(
+  statBlockA: StatBlock,
+  statNameA: string,
+  statBlockB: StatBlock,
+  statNameB: string,
+  options?: ContestOptions
+): ContestResult
+
+// With raw modifiers
+function contest(
+  modifierA: number,
+  modifierB: number,
+  options?: ContestOptions
+): ContestResult
+</code></pre>
+<p><strong>Parameters (stat blocks):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>statBlockA</code></td>
+<td><code>StatBlock</code></td>
+<td>Yes</td>
+<td>First participant&#39;s stat block</td>
+</tr>
+<tr>
+<td><code>statNameA</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>First participant&#39;s stat</td>
+</tr>
+<tr>
+<td><code>statBlockB</code></td>
+<td><code>StatBlock</code></td>
+<td>Yes</td>
+<td>Second participant&#39;s stat block</td>
+</tr>
+<tr>
+<td><code>statNameB</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>Second participant&#39;s stat</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><code>ContestOptions</code></td>
+<td>No</td>
+<td>Contest configuration</td>
+</tr>
+</tbody></table>
+<p><strong>Parameters (raw modifiers):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>modifierA</code></td>
+<td><code>number</code></td>
+<td>Yes</td>
+<td>First participant&#39;s modifier</td>
+</tr>
+<tr>
+<td><code>modifierB</code></td>
+<td><code>number</code></td>
+<td>Yes</td>
+<td>Second participant&#39;s modifier</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><code>ContestOptions</code></td>
+<td>No</td>
+<td>Contest configuration</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>ContestResult</code> — The contest result</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">import { createStatBlock, contest } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({ strength: { base: 16 } })
+const orc = createStatBlock({ strength: { base: 14 } })
+
+const result = contest(hero, &#39;strength&#39;, orc, &#39;strength&#39;)
+
+console.log(result.winner) // &#39;a&#39;, &#39;b&#39;, or &#39;tie&#39;
+console.log(result.margin) // Difference between totals
+</code></pre>
+<p><strong>Throws:</strong></p>
+<ul>
+<li><code>TypeError</code> — If stats don&#39;t exist or arguments are invalid</li>
+</ul>
+<hr>
+<h2><code>createDerivedStat()</code></h2>
+<p>Create a stat that auto-calculates from other stats.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">function createDerivedStat(
+  statBlock: StatBlock,
+  name: string,
+  formula: (statBlock: StatBlock) =&gt; number
+): { getValue: () =&gt; number }
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>statBlock</code></td>
+<td><code>StatBlock</code></td>
+<td>Yes</td>
+<td>The stat block to add to</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>Name for the derived stat</td>
+</tr>
+<tr>
+<td><code>formula</code></td>
+<td><code>(statBlock: StatBlock) =&gt; number</code></td>
+<td>Yes</td>
+<td>Calculation function</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>{ getValue: () =&gt; number }</code> — Accessor for the derived value</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">import { createStatBlock, createDerivedStat } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({ strength: { base: 16 } })
+
+createDerivedStat(hero, &#39;carryCapacity&#39;, (stats) =&gt; {
+  return stats.get(&#39;strength&#39;)! * 15
+})
+
+hero.get(&#39;carryCapacity&#39;) // 240
+</code></pre>
+<p><strong>Throws:</strong></p>
+<ul>
+<li><code>CircularDependencyError</code> — If formula creates a circular dependency</li>
+</ul>
+<hr>
+<h2>Types</h2>
+<h3><code>CheckOptions</code></h3>
+<pre><code class="language-typescript">interface CheckOptions {
+  difficulty: number
+  dice?: string
+  advantage?: boolean
+  disadvantage?: boolean
+  bonus?: number
+  modifier?: number
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>difficulty</code></td>
+<td><code>number</code></td>
+<td>Yes</td>
+<td>Target DC</td>
+</tr>
+<tr>
+<td><code>dice</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Dice notation. Default: <code>&#39;1d20&#39;</code></td>
+</tr>
+<tr>
+<td><code>advantage</code></td>
+<td><code>boolean</code></td>
+<td>No</td>
+<td>Roll twice, take higher</td>
+</tr>
+<tr>
+<td><code>disadvantage</code></td>
+<td><code>boolean</code></td>
+<td>No</td>
+<td>Roll twice, take lower</td>
+</tr>
+<tr>
+<td><code>bonus</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>Additional bonus to add</td>
+</tr>
+<tr>
+<td><code>modifier</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>Override calculated modifier</td>
+</tr>
+</tbody></table>
+<h3><code>CheckResult</code></h3>
+<pre><code class="language-typescript">interface CheckResult {
+  success: boolean
+  roll: number
+  rolls: number[]
+  modifier: number
+  bonus: number
+  total: number
+  difficulty: number
+  margin: number
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>success</code></td>
+<td><code>boolean</code></td>
+<td>Whether the check passed</td>
+</tr>
+<tr>
+<td><code>roll</code></td>
+<td><code>number</code></td>
+<td>The selected die result</td>
+</tr>
+<tr>
+<td><code>rolls</code></td>
+<td><code>number[]</code></td>
+<td>All dice rolled (for advantage/disadvantage)</td>
+</tr>
+<tr>
+<td><code>modifier</code></td>
+<td><code>number</code></td>
+<td>Stat modifier applied</td>
+</tr>
+<tr>
+<td><code>bonus</code></td>
+<td><code>number</code></td>
+<td>Additional bonus applied</td>
+</tr>
+<tr>
+<td><code>total</code></td>
+<td><code>number</code></td>
+<td>Final total (roll + modifier + bonus)</td>
+</tr>
+<tr>
+<td><code>difficulty</code></td>
+<td><code>number</code></td>
+<td>The DC that was checked against</td>
+</tr>
+<tr>
+<td><code>margin</code></td>
+<td><code>number</code></td>
+<td>Total - difficulty (positive = success margin)</td>
+</tr>
+</tbody></table>
+<h3><code>ContestOptions</code></h3>
+<pre><code class="language-typescript">interface ContestOptions {
+  dice?: string
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>dice</code></td>
+<td><code>string</code></td>
+<td>Dice notation. Default: <code>&#39;1d20&#39;</code></td>
+</tr>
+</tbody></table>
+<h3><code>ContestResult</code></h3>
+<pre><code class="language-typescript">interface ContestResult {
+  winner: &#39;a&#39; | &#39;b&#39; | &#39;tie&#39;
+  rolls: { a: number; b: number }
+  totals: { a: number; b: number }
+  margin: number
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>winner</code></td>
+<td><code>&#39;a&#39; | &#39;b&#39; | &#39;tie&#39;</code></td>
+<td>Who won the contest</td>
+</tr>
+<tr>
+<td><code>rolls</code></td>
+<td><code>{ a: number; b: number }</code></td>
+<td>Raw die results</td>
+</tr>
+<tr>
+<td><code>totals</code></td>
+<td><code>{ a: number; b: number }</code></td>
+<td>Final totals</td>
+</tr>
+<tr>
+<td><code>margin</code></td>
+<td><code>number</code></td>
+<td>Absolute difference between totals</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Related</h2>
+<ul>
+<li><strong><a href="concept-checks-and-contests.html">Checks and Contests</a></strong> — Conceptual overview</li>
+<li><strong><a href="concept-derived-stats.html">Derived Stats</a></strong> — How derived stats work</li>
+<li><strong><a href="guide-making-checks.html">Making Checks</a></strong> — Practical guide</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

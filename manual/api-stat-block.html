@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stat Block API - @motioneffector/stats</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/stats</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/stats" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/stats" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/stats</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-character.html">Your First Character</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-stat-blocks.html">Stat Blocks</a></li>
+<li><a href="concept-dice-notation.html">Dice Notation</a></li>
+<li><a href="concept-modifiers.html">Modifiers</a></li>
+<li><a href="concept-checks-and-contests.html">Checks and Contests</a></li>
+<li><a href="concept-derived-stats.html">Derived Stats</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-rolling-dice.html">Rolling Dice</a></li>
+<li><a href="guide-working-with-modifiers.html">Working with Modifiers</a></li>
+<li><a href="guide-making-checks.html">Making Checks</a></li>
+<li><a href="guide-using-derived-stats.html">Using Derived Stats</a></li>
+<li><a href="guide-saving-and-loading-state.html">Saving and Loading State</a></li>
+<li><a href="guide-using-stat-templates.html">Using Stat Templates</a></li>
+<li><a href="guide-using-roll-tables.html">Using Roll Tables</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-dice.html">Dice API</a></li>
+<li><a href="api-stat-block.html">Stat Block API</a></li>
+<li><a href="api-checks.html">Checks API</a></li>
+<li><a href="api-utilities.html">Utilities API</a></li>
+<li><a href="api-types.html">Types</a></li>
+<li><a href="api-errors.html">Errors</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Stat Block API</h1>
+<p>Functions and methods for creating and managing stat blocks.</p>
+<hr>
+<h2><code>createStatBlock()</code></h2>
+<p>Create a new stat block with the given definitions.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">function createStatBlock(
+  definitions: StatDefinitions,
+  options?: StatBlockOptions &amp; { fromJSON?: SerializedStatBlock }
+): StatBlock
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>definitions</code></td>
+<td><code>StatDefinitions</code></td>
+<td>Yes</td>
+<td>Object mapping stat names to definitions</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><code>StatBlockOptions</code></td>
+<td>No</td>
+<td>Configuration options</td>
+</tr>
+<tr>
+<td><code>options.historyLimit</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>Max roll history entries. Default: <code>100</code>. Set to <code>0</code> to disable.</td>
+</tr>
+<tr>
+<td><code>options.modifierFormula</code></td>
+<td><code>(value: number) =&gt; number</code></td>
+<td>No</td>
+<td>Custom formula for check modifiers</td>
+</tr>
+<tr>
+<td><code>options.fromJSON</code></td>
+<td><code>SerializedStatBlock</code></td>
+<td>No</td>
+<td>Restore from serialized data</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>StatBlock</code> — The created stat block</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  strength: { base: 16, min: 1, max: 20 },
+  health: { base: 100, min: 0 }
+})
+</code></pre>
+<p><strong>Throws:</strong></p>
+<ul>
+<li><code>ValidationError</code> — When min &gt; max in a stat definition</li>
+</ul>
+<hr>
+<h2>StatBlock Methods</h2>
+<h3><code>get()</code></h3>
+<p>Get the effective value of a stat (base + modifiers).</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">get(statName: string): number | undefined
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>statName</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>Name of the stat</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>number | undefined</code> — The effective value, or <code>undefined</code> if stat doesn&#39;t exist</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">hero.get(&#39;strength&#39;) // 16
+hero.get(&#39;unknown&#39;)  // undefined
+</code></pre>
+<hr>
+<h3><code>getBase()</code></h3>
+<p>Get the base value of a stat (without modifiers).</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">getBase(statName: string): number | undefined
+</code></pre>
+<p><strong>Returns:</strong> <code>number | undefined</code> — The base value</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">hero.addModifier(&#39;strength&#39;, { value: 2, source: &#39;buff&#39; })
+hero.get(&#39;strength&#39;)     // 18
+hero.getBase(&#39;strength&#39;) // 16
+</code></pre>
+<hr>
+<h3><code>set()</code></h3>
+<p>Set the base value of a stat.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">set(statName: string, value: number): number
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>statName</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>Name of the stat</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td><code>number</code></td>
+<td>Yes</td>
+<td>New base value</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>number</code> — The new base value (may be clamped to bounds)</p>
+<p><strong>Throws:</strong></p>
+<ul>
+<li><code>TypeError</code> — If stat doesn&#39;t exist or is derived</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">hero.set(&#39;strength&#39;, 18) // Returns 18
+hero.set(&#39;strength&#39;, 25) // Returns 20 (clamped to max)
+</code></pre>
+<hr>
+<h3><code>modify()</code></h3>
+<p>Add to or subtract from the base value.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">modify(statName: string, delta: number): number
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>statName</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>Name of the stat</td>
+</tr>
+<tr>
+<td><code>delta</code></td>
+<td><code>number</code></td>
+<td>Yes</td>
+<td>Amount to add (negative to subtract)</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>number</code> — The new base value</p>
+<p><strong>Throws:</strong></p>
+<ul>
+<li><code>TypeError</code> — If stat doesn&#39;t exist or is derived</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">hero.modify(&#39;health&#39;, -10) // Take 10 damage
+hero.modify(&#39;health&#39;, 5)   // Heal 5
+</code></pre>
+<hr>
+<h3><code>has()</code></h3>
+<p>Check if a stat exists.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">has(statName: string): boolean
+</code></pre>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">hero.has(&#39;strength&#39;) // true
+hero.has(&#39;luck&#39;)     // false
+</code></pre>
+<hr>
+<h3><code>stats()</code></h3>
+<p>Get all stat names.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">stats(): string[]
+</code></pre>
+<p><strong>Returns:</strong> <code>string[]</code> — Array of stat names</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">hero.stats() // [&#39;strength&#39;, &#39;health&#39;]
+</code></pre>
+<hr>
+<h3><code>addModifier()</code></h3>
+<p>Add a modifier to a stat.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">addModifier(statName: string, modifier: Modifier): Modifier
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>statName</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>Name of the stat</td>
+</tr>
+<tr>
+<td><code>modifier</code></td>
+<td><code>Modifier</code></td>
+<td>Yes</td>
+<td>The modifier to add</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>Modifier</code> — The added modifier</p>
+<p><strong>Throws:</strong></p>
+<ul>
+<li><code>TypeError</code> — If stat doesn&#39;t exist or is derived</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">hero.addModifier(&#39;strength&#39;, {
+  value: 2,
+  source: &#39;belt-of-strength&#39;,
+  type: &#39;flat&#39;,
+  duration: &#39;permanent&#39;
+})
+</code></pre>
+<hr>
+<h3><code>removeModifier()</code></h3>
+<p>Remove a modifier by source name.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">removeModifier(statName: string, source: string): boolean
+</code></pre>
+<p><strong>Returns:</strong> <code>boolean</code> — <code>true</code> if removed, <code>false</code> if not found</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">hero.removeModifier(&#39;strength&#39;, &#39;belt-of-strength&#39;)
+</code></pre>
+<hr>
+<h3><code>getModifiers()</code></h3>
+<p>Get all modifiers on a stat.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">getModifiers(statName: string): ModifierInfo[] | undefined
+</code></pre>
+<p><strong>Returns:</strong> <code>ModifierInfo[] | undefined</code> — Array of modifiers, or <code>undefined</code> if stat doesn&#39;t exist</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const mods = hero.getModifiers(&#39;strength&#39;)
+// [{ value: 2, source: &#39;belt&#39;, type: &#39;flat&#39;, duration: &#39;permanent&#39; }]
+</code></pre>
+<hr>
+<h3><code>clearModifiers()</code></h3>
+<p>Remove all modifiers from a stat or all stats.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">clearModifiers(statName?: string): number
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>statName</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Stat to clear. If omitted, clears all stats.</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>number</code> — Count of modifiers removed</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">hero.clearModifiers(&#39;strength&#39;) // Clear one stat
+hero.clearModifiers()           // Clear all stats
+</code></pre>
+<hr>
+<h3><code>getRemainingDuration()</code></h3>
+<p>Get remaining duration of a modifier.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">getRemainingDuration(statName: string, source: string): number | undefined
+</code></pre>
+<p><strong>Returns:</strong> <code>number | undefined</code> — Remaining ticks, <code>Infinity</code> for permanent, or <code>undefined</code> if not found</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">hero.getRemainingDuration(&#39;strength&#39;, &#39;rage&#39;) // 3
+</code></pre>
+<hr>
+<h3><code>tick()</code></h3>
+<p>Advance time, decrementing modifier durations.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">tick(): string[]
+</code></pre>
+<p><strong>Returns:</strong> <code>string[]</code> — Sources of expired modifiers</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const expired = hero.tick()
+console.log(expired) // [&#39;rage&#39;, &#39;haste&#39;]
+</code></pre>
+<hr>
+<h3><code>getRollHistory()</code></h3>
+<p>Get roll history entries.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">getRollHistory(limit?: number): HistoryEntry[]
+</code></pre>
+<p><strong>Returns:</strong> <code>HistoryEntry[]</code> — Array of history entries</p>
+<hr>
+<h3><code>clearRollHistory()</code></h3>
+<p>Clear all roll history.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">clearRollHistory(): void
+</code></pre>
+<hr>
+<h3><code>onChange()</code></h3>
+<p>Subscribe to all stat changes.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">onChange(callback: (event: StatChangeEvent) =&gt; void): () =&gt; void
+</code></pre>
+<p><strong>Returns:</strong> <code>() =&gt; void</code> — Unsubscribe function</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const unsubscribe = hero.onChange((event) =&gt; {
+  console.log(`${event.stat}: ${event.oldValue} → ${event.newValue}`)
+})
+
+// Later...
+unsubscribe()
+</code></pre>
+<hr>
+<h3><code>onStat()</code></h3>
+<p>Subscribe to changes on a specific stat.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">onStat(statName: string, callback: (event: StatChangeEvent) =&gt; void): () =&gt; void
+</code></pre>
+<p><strong>Throws:</strong></p>
+<ul>
+<li><code>TypeError</code> — If stat doesn&#39;t exist</li>
+</ul>
+<hr>
+<h3><code>isDerived()</code></h3>
+<p>Check if a stat is derived.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">isDerived(name: string): boolean
+</code></pre>
+<hr>
+<h3><code>toJSON()</code></h3>
+<p>Serialize the stat block.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">toJSON(): SerializedStatBlock
+</code></pre>
+<p><strong>Returns:</strong> <code>SerializedStatBlock</code> — Serializable object</p>
+<hr>
+<h3><code>dispose()</code></h3>
+<p>Clean up resources and listeners.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">dispose(): void
+</code></pre>
+<hr>
+<h2>Types</h2>
+<h3><code>StatDefinition</code></h3>
+<pre><code class="language-typescript">interface StatDefinition {
+  base: number
+  min?: number
+  max?: number
+}
+</code></pre>
+<h3><code>StatDefinitions</code></h3>
+<pre><code class="language-typescript">type StatDefinitions = Record&lt;string, StatDefinition&gt;
+</code></pre>
+<h3><code>Modifier</code></h3>
+<pre><code class="language-typescript">interface Modifier {
+  value: number
+  source: string
+  type?: &#39;flat&#39; | &#39;multiply&#39;
+  duration?: &#39;permanent&#39; | &#39;temporary&#39; | number
+}
+</code></pre>
+<h3><code>ModifierInfo</code></h3>
+<pre><code class="language-typescript">interface ModifierInfo {
+  value: number
+  source: string
+  type: &#39;flat&#39; | &#39;multiply&#39;
+  duration: &#39;permanent&#39; | number
+}
+</code></pre>
+<h3><code>StatChangeEvent</code></h3>
+<pre><code class="language-typescript">interface StatChangeEvent {
+  stat: string
+  newValue: number
+  oldValue: number
+  baseChanged: boolean
+  modifiersChanged: boolean
+}
+</code></pre>
+<h3><code>StatBlockOptions</code></h3>
+<pre><code class="language-typescript">interface StatBlockOptions {
+  historyLimit?: number
+  modifierFormula?: (value: number) =&gt; number
+}
+</code></pre>
+<h3><code>SerializedStatBlock</code></h3>
+<pre><code class="language-typescript">interface SerializedStatBlock {
+  version: 1
+  stats: Record&lt;string, number&gt;
+  modifiers: Record&lt;string, ModifierInfo[]&gt;
+}
+</code></pre>
+<hr>
+<h2>Related</h2>
+<ul>
+<li><strong><a href="concept-stat-blocks.html">Stat Blocks</a></strong> — Conceptual overview</li>
+<li><strong><a href="concept-modifiers.html">Modifiers</a></strong> — How modifiers work</li>
+<li><strong><a href="guide-working-with-modifiers.html">Working with Modifiers</a></strong> — Practical guide</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

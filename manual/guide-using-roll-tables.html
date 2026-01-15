@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Using Roll Tables - @motioneffector/stats</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/stats</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/stats" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/stats" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/stats</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-character.html">Your First Character</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-stat-blocks.html">Stat Blocks</a></li>
+<li><a href="concept-dice-notation.html">Dice Notation</a></li>
+<li><a href="concept-modifiers.html">Modifiers</a></li>
+<li><a href="concept-checks-and-contests.html">Checks and Contests</a></li>
+<li><a href="concept-derived-stats.html">Derived Stats</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-rolling-dice.html">Rolling Dice</a></li>
+<li><a href="guide-working-with-modifiers.html">Working with Modifiers</a></li>
+<li><a href="guide-making-checks.html">Making Checks</a></li>
+<li><a href="guide-using-derived-stats.html">Using Derived Stats</a></li>
+<li><a href="guide-saving-and-loading-state.html">Saving and Loading State</a></li>
+<li><a href="guide-using-stat-templates.html">Using Stat Templates</a></li>
+<li><a href="guide-using-roll-tables.html">Using Roll Tables</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-dice.html">Dice API</a></li>
+<li><a href="api-stat-block.html">Stat Block API</a></li>
+<li><a href="api-checks.html">Checks API</a></li>
+<li><a href="api-utilities.html">Utilities API</a></li>
+<li><a href="api-types.html">Types</a></li>
+<li><a href="api-errors.html">Errors</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Using Roll Tables</h1>
+<p>Select random outcomes with weighted probabilities. Use roll tables for loot drops, random encounters, or any weighted random selection.</p>
+<h2>Prerequisites</h2>
+<p>None—roll tables are standalone utilities.</p>
+<h2>Overview</h2>
+<p>We&#39;ll cover:</p>
+<ol>
+<li>Creating a weighted table</li>
+<li>Rolling on the table</li>
+<li>Using different weight distributions</li>
+<li>Handling complex results</li>
+</ol>
+<h2>Step 1: Define a Table</h2>
+<p>Create an array of entries with <code>weight</code> and <code>value</code>:</p>
+<pre><code class="language-typescript">const lootTable = [
+  { weight: 10, value: &#39;gold&#39; },
+  { weight: 5, value: &#39;potion&#39; },
+  { weight: 1, value: &#39;rare sword&#39; }
+]
+</code></pre>
+<p>Higher weights mean higher probability. With these weights:</p>
+<ul>
+<li>Gold: 10/16 = 62.5% chance</li>
+<li>Potion: 5/16 = 31.25% chance</li>
+<li>Rare sword: 1/16 = 6.25% chance</li>
+</ul>
+<h2>Step 2: Roll on the Table</h2>
+<p>Use <code>rollTable()</code> to select a random entry:</p>
+<pre><code class="language-typescript">import { rollTable } from &#39;@motioneffector/stats&#39;
+
+const lootTable = [
+  { weight: 10, value: &#39;gold&#39; },
+  { weight: 5, value: &#39;potion&#39; },
+  { weight: 1, value: &#39;rare sword&#39; }
+]
+
+const loot = rollTable(lootTable)
+console.log(`Found: ${loot}`) // e.g., &quot;Found: gold&quot;
+</code></pre>
+<p>The function returns the <code>value</code> of the selected entry.</p>
+<h2>Step 3: Use Any Value Type</h2>
+<p>Values can be any type—strings, numbers, objects, or functions:</p>
+<pre><code class="language-typescript">import { rollTable } from &#39;@motioneffector/stats&#39;
+
+// Objects
+const encounterTable = [
+  { weight: 5, value: { type: &#39;goblin&#39;, count: 3 } },
+  { weight: 3, value: { type: &#39;orc&#39;, count: 1 } },
+  { weight: 1, value: { type: &#39;dragon&#39;, count: 1 } }
+]
+
+const encounter = rollTable(encounterTable)
+console.log(`${encounter.count} ${encounter.type}(s) appear!`)
+
+// Numbers
+const damageTable = [
+  { weight: 1, value: 6 },  // Low damage
+  { weight: 2, value: 8 },  // Medium
+  { weight: 1, value: 12 }  // High damage
+]
+
+const damage = rollTable(damageTable)
+console.log(`Dealt ${damage} damage`)
+</code></pre>
+<h2>Complete Example</h2>
+<pre><code class="language-typescript">import { rollTable } from &#39;@motioneffector/stats&#39;
+
+// Treasure table with typed objects
+type Treasure = {
+  name: string
+  value: number
+  rarity: &#39;common&#39; | &#39;uncommon&#39; | &#39;rare&#39; | &#39;legendary&#39;
+}
+
+const treasureTable: Array&lt;{ weight: number; value: Treasure }&gt; = [
+  { weight: 50, value: { name: &#39;Gold Coins&#39;, value: 10, rarity: &#39;common&#39; } },
+  { weight: 25, value: { name: &#39;Silver Ring&#39;, value: 25, rarity: &#39;common&#39; } },
+  { weight: 15, value: { name: &#39;Health Potion&#39;, value: 50, rarity: &#39;uncommon&#39; } },
+  { weight: 7, value: { name: &#39;Magic Scroll&#39;, value: 100, rarity: &#39;uncommon&#39; } },
+  { weight: 2, value: { name: &#39;Enchanted Dagger&#39;, value: 500, rarity: &#39;rare&#39; } },
+  { weight: 1, value: { name: &#39;Dragon Scale&#39;, value: 2000, rarity: &#39;legendary&#39; } }
+]
+
+function openChest(): Treasure[] {
+  const items: Treasure[] = []
+  const itemCount = Math.floor(Math.random() * 3) + 1 // 1-3 items
+
+  for (let i = 0; i &lt; itemCount; i++) {
+    items.push(rollTable(treasureTable))
+  }
+
+  return items
+}
+
+const loot = openChest()
+console.log(&#39;You found:&#39;)
+for (const item of loot) {
+  console.log(`  [${item.rarity}] ${item.name} (${item.value}g)`)
+}
+</code></pre>
+<h2>Variations</h2>
+<h3>Guaranteed Rare Drop</h3>
+<p>Stack tables for guaranteed + random drops:</p>
+<pre><code class="language-typescript">import { rollTable } from &#39;@motioneffector/stats&#39;
+
+const commonTable = [
+  { weight: 3, value: &#39;gold&#39; },
+  { weight: 2, value: &#39;potion&#39; }
+]
+
+const rareTable = [
+  { weight: 5, value: &#39;magic ring&#39; },
+  { weight: 3, value: &#39;enchanted sword&#39; },
+  { weight: 1, value: &#39;artifact&#39; }
+]
+
+function bossLoot() {
+  return {
+    guaranteed: rollTable(rareTable), // Always get something rare
+    bonus: rollTable(commonTable)     // Plus a common item
+  }
+}
+</code></pre>
+<h3>Nested Tables</h3>
+<p>Roll on one table to pick another table:</p>
+<pre><code class="language-typescript">import { rollTable } from &#39;@motioneffector/stats&#39;
+
+const weaponTable = [
+  { weight: 3, value: &#39;sword&#39; },
+  { weight: 2, value: &#39;axe&#39; },
+  { weight: 1, value: &#39;mace&#39; }
+]
+
+const armorTable = [
+  { weight: 3, value: &#39;leather&#39; },
+  { weight: 2, value: &#39;chain&#39; },
+  { weight: 1, value: &#39;plate&#39; }
+]
+
+const categoryTable = [
+  { weight: 1, value: weaponTable },
+  { weight: 1, value: armorTable }
+]
+
+function randomEquipment() {
+  const table = rollTable(categoryTable)
+  return rollTable(table)
+}
+
+console.log(randomEquipment()) // e.g., &quot;chain&quot;
+</code></pre>
+<h3>Dynamic Weights</h3>
+<p>Calculate weights based on game state:</p>
+<pre><code class="language-typescript">import { rollTable } from &#39;@motioneffector/stats&#39;
+
+function createLootTable(playerLevel: number) {
+  return [
+    { weight: 10, value: &#39;common item&#39; },
+    { weight: Math.max(1, 10 - playerLevel), value: &#39;gold&#39; }, // Less gold at high levels
+    { weight: Math.min(playerLevel, 10), value: &#39;rare item&#39; } // More rares at high levels
+  ]
+}
+
+const lowLevelTable = createLootTable(1)  // Mostly common + gold
+const highLevelTable = createLootTable(10) // More rares
+
+console.log(rollTable(lowLevelTable))
+console.log(rollTable(highLevelTable))
+</code></pre>
+<h3>Equal Weights (Uniform Distribution)</h3>
+<p>For equal probability, use the same weight for all entries:</p>
+<pre><code class="language-typescript">import { rollTable } from &#39;@motioneffector/stats&#39;
+
+const directions = [
+  { weight: 1, value: &#39;north&#39; },
+  { weight: 1, value: &#39;south&#39; },
+  { weight: 1, value: &#39;east&#39; },
+  { weight: 1, value: &#39;west&#39; }
+]
+
+const direction = rollTable(directions)
+// Each direction has 25% chance
+</code></pre>
+<h2>Troubleshooting</h2>
+<h3>ValidationError: Table Empty</h3>
+<p><strong>Symptom:</strong> <code>ValidationError: Roll table cannot be empty</code></p>
+<p><strong>Cause:</strong> You passed an empty array.</p>
+<p><strong>Solution:</strong> Ensure the table has at least one entry.</p>
+<h3>ValidationError: Negative Weight</h3>
+<p><strong>Symptom:</strong> <code>ValidationError: Roll table weights cannot be negative</code></p>
+<p><strong>Cause:</strong> An entry has a negative weight.</p>
+<p><strong>Solution:</strong> All weights must be &gt;= 0.</p>
+<h3>ValidationError: All Zero Weights</h3>
+<p><strong>Symptom:</strong> <code>ValidationError: Roll table must have at least one non-zero weight</code></p>
+<p><strong>Cause:</strong> All entries have weight 0.</p>
+<p><strong>Solution:</strong> At least one entry needs a positive weight.</p>
+<h2>See Also</h2>
+<ul>
+<li><strong><a href="concept-dice-notation.html">Dice Notation</a></strong> — Rolling dice directly</li>
+<li><strong><a href="api-utilities.html">Utilities API</a></strong> — <code>rollTable</code> reference</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

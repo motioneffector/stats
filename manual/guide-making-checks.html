@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Making Checks - @motioneffector/stats</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/stats</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/stats" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/stats" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/stats</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-character.html">Your First Character</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-stat-blocks.html">Stat Blocks</a></li>
+<li><a href="concept-dice-notation.html">Dice Notation</a></li>
+<li><a href="concept-modifiers.html">Modifiers</a></li>
+<li><a href="concept-checks-and-contests.html">Checks and Contests</a></li>
+<li><a href="concept-derived-stats.html">Derived Stats</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-rolling-dice.html">Rolling Dice</a></li>
+<li><a href="guide-working-with-modifiers.html">Working with Modifiers</a></li>
+<li><a href="guide-making-checks.html">Making Checks</a></li>
+<li><a href="guide-using-derived-stats.html">Using Derived Stats</a></li>
+<li><a href="guide-saving-and-loading-state.html">Saving and Loading State</a></li>
+<li><a href="guide-using-stat-templates.html">Using Stat Templates</a></li>
+<li><a href="guide-using-roll-tables.html">Using Roll Tables</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-dice.html">Dice API</a></li>
+<li><a href="api-stat-block.html">Stat Block API</a></li>
+<li><a href="api-checks.html">Checks API</a></li>
+<li><a href="api-utilities.html">Utilities API</a></li>
+<li><a href="api-types.html">Types</a></li>
+<li><a href="api-errors.html">Errors</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Making Checks</h1>
+<p>Perform skill checks against a difficulty class, apply advantage/disadvantage, and run opposed contests between characters.</p>
+<h2>Prerequisites</h2>
+<p>Before starting, you should:</p>
+<ul>
+<li><a href="your-first-character.html">Create a stat block</a></li>
+<li>Understand <a href="concept-checks-and-contests.html">checks and contests</a></li>
+</ul>
+<h2>Overview</h2>
+<p>We&#39;ll cover:</p>
+<ol>
+<li>Making basic skill checks</li>
+<li>Using advantage and disadvantage</li>
+<li>Adding proficiency and other bonuses</li>
+<li>Running saving throws</li>
+<li>Running opposed contests</li>
+</ol>
+<h2>Step 1: Make a Basic Check</h2>
+<p>Use <code>check()</code> with a stat block, stat name, and difficulty:</p>
+<pre><code class="language-typescript">import { createStatBlock, check } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  strength: { base: 16 }
+})
+
+const result = check(hero, &#39;strength&#39;, { difficulty: 15 })
+
+console.log(result.success)  // true or false
+console.log(result.roll)     // the d20 result (e.g., 12)
+console.log(result.modifier) // +3 (from 16 strength)
+console.log(result.total)    // 15 (roll + modifier)
+console.log(result.margin)   // 0 (total - difficulty)
+</code></pre>
+<p>The modifier is calculated using the D&amp;D formula: <code>floor((stat - 10) / 2)</code>.</p>
+<h2>Step 2: Apply Advantage or Disadvantage</h2>
+<p>Set <code>advantage: true</code> or <code>disadvantage: true</code> in the options:</p>
+<pre><code class="language-typescript">import { createStatBlock, check } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  dexterity: { base: 14 }
+})
+
+// Roll with advantage (2d20, take higher)
+const stealthCheck = check(hero, &#39;dexterity&#39;, {
+  difficulty: 12,
+  advantage: true
+})
+
+console.log(stealthCheck.rolls) // [8, 17] — both d20 results
+console.log(stealthCheck.roll)  // 17 — the higher one
+console.log(stealthCheck.total) // 19 (17 + 2 modifier)
+</code></pre>
+<p>For disadvantage:</p>
+<pre><code class="language-typescript">const disadvantagedCheck = check(hero, &#39;dexterity&#39;, {
+  difficulty: 12,
+  disadvantage: true
+})
+
+console.log(disadvantagedCheck.roll) // The lower of two d20s
+</code></pre>
+<p>If both advantage and disadvantage apply, they cancel out:</p>
+<pre><code class="language-typescript">const canceledCheck = check(hero, &#39;dexterity&#39;, {
+  difficulty: 12,
+  advantage: true,
+  disadvantage: true
+})
+// Rolls 1d20 normally
+</code></pre>
+<h2>Step 3: Add Proficiency and Bonuses</h2>
+<p>Use the <code>bonus</code> option for additional modifiers:</p>
+<pre><code class="language-typescript">import { createStatBlock, check } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  wisdom: { base: 14 }
+})
+
+const proficiencyBonus = 3
+const expertiseBonus = 3 // Double proficiency
+
+const perceptionCheck = check(hero, &#39;wisdom&#39;, {
+  difficulty: 15,
+  bonus: proficiencyBonus + expertiseBonus
+})
+
+// Total = d20 + wisdom mod (+2) + bonus (+6)
+console.log(perceptionCheck.total)
+console.log(perceptionCheck.bonus) // 6
+</code></pre>
+<h2>Step 4: Use Saving Throws</h2>
+<p>For simple pass/fail checks, use <code>saveThrow()</code>:</p>
+<pre><code class="language-typescript">import { createStatBlock, saveThrow } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  constitution: { base: 12 }
+})
+
+const passed = saveThrow(hero, &#39;constitution&#39;, 14)
+
+if (passed) {
+  console.log(&#39;Resisted the effect!&#39;)
+} else {
+  console.log(&#39;Failed the save!&#39;)
+}
+</code></pre>
+<p>This is a shorthand for <code>check(...).success</code>.</p>
+<h2>Step 5: Run Opposed Contests</h2>
+<p>Use <code>contest()</code> when two characters compete:</p>
+<pre><code class="language-typescript">import { createStatBlock, contest } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({ strength: { base: 16 } })
+const orc = createStatBlock({ strength: { base: 14 } })
+
+const grapple = contest(hero, &#39;strength&#39;, orc, &#39;strength&#39;)
+
+console.log(grapple.winner)  // &#39;a&#39;, &#39;b&#39;, or &#39;tie&#39;
+console.log(grapple.rolls)   // { a: 14, b: 8 }
+console.log(grapple.totals)  // { a: 17, b: 10 }
+console.log(grapple.margin)  // 7
+</code></pre>
+<p>You can also contest raw modifiers without stat blocks:</p>
+<pre><code class="language-typescript">import { contest } from &#39;@motioneffector/stats&#39;
+
+// Contest between modifier +5 and modifier +3
+const result = contest(5, 3)
+console.log(result.winner)
+</code></pre>
+<h2>Complete Example</h2>
+<pre><code class="language-typescript">import { createStatBlock, check, saveThrow, contest } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  strength: { base: 16 },
+  dexterity: { base: 14 },
+  constitution: { base: 12 },
+  wisdom: { base: 10 }
+})
+
+const goblin = createStatBlock({
+  strength: { base: 8 },
+  dexterity: { base: 14 }
+})
+
+// Hero attacks with advantage (flanking)
+const attack = check(hero, &#39;strength&#39;, {
+  difficulty: 13, // Goblin AC
+  advantage: true,
+  bonus: 2 // Proficiency
+})
+
+if (attack.success) {
+  console.log(`Hit! Rolled ${attack.total} vs AC 13`)
+
+  // Goblin tries to escape with a contest
+  const escape = contest(goblin, &#39;dexterity&#39;, hero, &#39;strength&#39;)
+
+  if (escape.winner === &#39;a&#39;) {
+    console.log(&#39;Goblin escapes!&#39;)
+  } else {
+    console.log(&#39;Goblin is grappled!&#39;)
+  }
+} else {
+  console.log(&#39;Miss!&#39;)
+}
+
+// Later, hero must save against poison
+const poisonDC = 12
+if (!saveThrow(hero, &#39;constitution&#39;, poisonDC)) {
+  console.log(&#39;Hero is poisoned!&#39;)
+}
+</code></pre>
+<h2>Variations</h2>
+<h3>Custom Dice (Non-D&amp;D)</h3>
+<pre><code class="language-typescript">import { createStatBlock, check } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  skill: { base: 5 }
+})
+
+// Roll 2d10 instead of 1d20
+const result = check(hero, &#39;skill&#39;, {
+  difficulty: 15,
+  dice: &#39;2d10&#39;
+})
+</code></pre>
+<h3>Custom Modifier Formula</h3>
+<pre><code class="language-typescript">import { createStatBlock, check } from &#39;@motioneffector/stats&#39;
+
+// Use stat value directly (no D&amp;D formula)
+const hero = createStatBlock(
+  { agility: { base: 7 } },
+  { modifierFormula: (value) =&gt; value }
+)
+
+const result = check(hero, &#39;agility&#39;, { difficulty: 10 })
+console.log(result.modifier) // 7 (the stat value itself)
+</code></pre>
+<h3>Override Modifier Per-Check</h3>
+<pre><code class="language-typescript">import { createStatBlock, check } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  strength: { base: 16 }
+})
+
+// Force modifier to be +5 instead of calculated +3
+const result = check(hero, &#39;strength&#39;, {
+  difficulty: 15,
+  modifier: 5
+})
+
+console.log(result.modifier) // 5
+</code></pre>
+<h2>Troubleshooting</h2>
+<h3>Stat Not Found Error</h3>
+<p><strong>Symptom:</strong> <code>TypeError: Cannot check non-existent stat</code></p>
+<p><strong>Cause:</strong> The stat name doesn&#39;t exist in the stat block.</p>
+<p><strong>Solution:</strong> Check spelling. Use <code>statBlock.has(&#39;statName&#39;)</code> to verify.</p>
+<h3>Unexpected Modifier</h3>
+<p><strong>Symptom:</strong> The modifier isn&#39;t what you expected.</p>
+<p><strong>Cause:</strong> The D&amp;D formula <code>floor((stat - 10) / 2)</code> may not match your system.</p>
+<p><strong>Solution:</strong> Use <code>modifierFormula</code> in stat block options, or <code>modifier</code> in check options.</p>
+<h2>See Also</h2>
+<ul>
+<li><strong><a href="concept-checks-and-contests.html">Checks and Contests</a></strong> — Conceptual overview</li>
+<li><strong><a href="concept-dice-notation.html">Dice Notation</a></strong> — Custom dice options</li>
+<li><strong><a href="api-checks.html">Checks API</a></strong> — Full reference for <code>check</code>, <code>saveThrow</code>, <code>contest</code></li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
