@@ -560,8 +560,14 @@ function spinWheel() {
   }
 
   // Spin multiple times plus land at target
+  // The pointer is at the top (0deg). Conic gradients start at the top and go clockwise.
+  // To bring a slice at targetAngle to the top, we need to rotate counter-clockwise by targetAngle,
+  // which is the same as rotating clockwise by -targetAngle (or adding full spins and subtracting).
+  // But since the wheel visually spins clockwise (positive rotation), we want the slice to
+  // arrive at the pointer after spinning. The slice at targetAngle needs to travel to 0deg,
+  // so we rotate by targetAngle (not 360 - targetAngle).
   const spins = 5 + Math.random() * 3
-  const finalRotation = lootState.currentRotation + (spins * 360) + (360 - targetAngle)
+  const finalRotation = lootState.currentRotation + (spins * 360) + targetAngle
 
   wheel.style.transform = `rotate(${finalRotation}deg)`
   lootState.currentRotation = finalRotation
