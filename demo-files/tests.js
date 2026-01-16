@@ -1,3 +1,6 @@
+import * as Library from '../dist/index.js'
+if (!window.Library) window.Library = Library
+
 import {
   roll,
   createStatBlock,
