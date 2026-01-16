@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Using Stat Templates - @motioneffector/stats</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/stats</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/stats" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/stats" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/stats</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-character.html">Your First Character</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-stat-blocks.html">Stat Blocks</a></li>
+<li><a href="concept-dice-notation.html">Dice Notation</a></li>
+<li><a href="concept-modifiers.html">Modifiers</a></li>
+<li><a href="concept-checks-and-contests.html">Checks and Contests</a></li>
+<li><a href="concept-derived-stats.html">Derived Stats</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-rolling-dice.html">Rolling Dice</a></li>
+<li><a href="guide-working-with-modifiers.html">Working with Modifiers</a></li>
+<li><a href="guide-making-checks.html">Making Checks</a></li>
+<li><a href="guide-using-derived-stats.html">Using Derived Stats</a></li>
+<li><a href="guide-saving-and-loading-state.html">Saving and Loading State</a></li>
+<li><a href="guide-using-stat-templates.html">Using Stat Templates</a></li>
+<li><a href="guide-using-roll-tables.html">Using Roll Tables</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-dice.html">Dice API</a></li>
+<li><a href="api-stat-block.html">Stat Block API</a></li>
+<li><a href="api-checks.html">Checks API</a></li>
+<li><a href="api-utilities.html">Utilities API</a></li>
+<li><a href="api-types.html">Types</a></li>
+<li><a href="api-errors.html">Errors</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Using Stat Templates</h1>
+<p>Create reusable stat configurations for NPCs, monsters, or character classes. Templates define defaults that can be overridden per instance.</p>
+<h2>Prerequisites</h2>
+<p>Before starting, you should:</p>
+<ul>
+<li><a href="your-first-character.html">Create a stat block</a></li>
+</ul>
+<h2>Overview</h2>
+<p>We&#39;ll cover:</p>
+<ol>
+<li>Creating a template</li>
+<li>Creating instances with defaults</li>
+<li>Overriding specific stats</li>
+<li>Using templates for game entities</li>
+</ol>
+<h2>Step 1: Create a Template</h2>
+<p>Use <code>createStatTemplate()</code> with stat definitions:</p>
+<pre><code class="language-typescript">import { createStatTemplate } from &#39;@motioneffector/stats&#39;
+
+const goblinTemplate = createStatTemplate({
+  stats: {
+    strength: { default: 8, min: 1, max: 20 },
+    dexterity: { default: 14, min: 1, max: 20 },
+    health: { default: 7, min: 0 }
+  }
+})
+</code></pre>
+<p>Templates use <code>default</code> instead of <code>base</code> to indicate it&#39;s a starting value that can be overridden.</p>
+<h2>Step 2: Create Instances</h2>
+<p>Call <code>create()</code> to get a stat block with the template&#39;s defaults:</p>
+<pre><code class="language-typescript">import { createStatTemplate } from &#39;@motioneffector/stats&#39;
+
+const goblinTemplate = createStatTemplate({
+  stats: {
+    strength: { default: 8, min: 1, max: 20 },
+    dexterity: { default: 14, min: 1, max: 20 },
+    health: { default: 7, min: 0 }
+  }
+})
+
+const goblin1 = goblinTemplate.create()
+const goblin2 = goblinTemplate.create()
+
+console.log(goblin1.get(&#39;health&#39;)) // 7
+console.log(goblin2.get(&#39;health&#39;)) // 7
+
+// They&#39;re independent
+goblin1.modify(&#39;health&#39;, -5)
+console.log(goblin1.get(&#39;health&#39;)) // 2
+console.log(goblin2.get(&#39;health&#39;)) // 7
+</code></pre>
+<p>Each call to <code>create()</code> returns a fresh, independent stat block.</p>
+<h2>Step 3: Override Stats</h2>
+<p>Pass an object to <code>create()</code> to override specific defaults:</p>
+<pre><code class="language-typescript">import { createStatTemplate } from &#39;@motioneffector/stats&#39;
+
+const goblinTemplate = createStatTemplate({
+  stats: {
+    strength: { default: 8, min: 1, max: 20 },
+    dexterity: { default: 14, min: 1, max: 20 },
+    health: { default: 7, min: 0 }
+  }
+})
+
+// Regular goblin
+const goblin = goblinTemplate.create()
+
+// Goblin boss with more health and strength
+const goblinBoss = goblinTemplate.create({
+  strength: 12,
+  health: 21
+})
+
+console.log(goblin.get(&#39;health&#39;))     // 7
+console.log(goblinBoss.get(&#39;health&#39;)) // 21
+console.log(goblinBoss.get(&#39;strength&#39;)) // 12
+console.log(goblinBoss.get(&#39;dexterity&#39;)) // 14 (default)
+</code></pre>
+<h2>Step 4: Use Template Options</h2>
+<p>Templates can include stat block options like <code>modifierFormula</code>:</p>
+<pre><code class="language-typescript">import { createStatTemplate } from &#39;@motioneffector/stats&#39;
+
+const characterTemplate = createStatTemplate({
+  stats: {
+    strength: { default: 10, min: 1, max: 20 },
+    dexterity: { default: 10, min: 1, max: 20 }
+  },
+  options: {
+    modifierFormula: (value) =&gt; Math.floor((value - 10) / 2),
+    historyLimit: 50
+  }
+})
+
+const hero = characterTemplate.create({ strength: 16 })
+</code></pre>
+<h2>Complete Example</h2>
+<pre><code class="language-typescript">import { createStatTemplate, check } from &#39;@motioneffector/stats&#39;
+
+// Define monster templates
+const goblinTemplate = createStatTemplate({
+  stats: {
+    strength: { default: 8, min: 1, max: 20 },
+    dexterity: { default: 14, min: 1, max: 20 },
+    constitution: { default: 10, min: 1, max: 20 },
+    health: { default: 7, min: 0 },
+    armorClass: { default: 15 }
+  }
+})
+
+const orcTemplate = createStatTemplate({
+  stats: {
+    strength: { default: 16, min: 1, max: 20 },
+    dexterity: { default: 12, min: 1, max: 20 },
+    constitution: { default: 16, min: 1, max: 20 },
+    health: { default: 15, min: 0 },
+    armorClass: { default: 13 }
+  }
+})
+
+// Spawn an encounter
+const encounter = [
+  goblinTemplate.create(),
+  goblinTemplate.create(),
+  goblinTemplate.create({ health: 14 }), // Tougher goblin
+  orcTemplate.create()
+]
+
+// Check if each enemy notices the party
+for (const [index, enemy] of encounter.entries()) {
+  const perception = check(enemy, &#39;dexterity&#39;, { difficulty: 12 })
+  console.log(`Enemy ${index + 1}: ${perception.success ? &#39;Alert!&#39; : &#39;Unaware&#39;}`)
+}
+</code></pre>
+<h2>Variations</h2>
+<h3>Character Class Templates</h3>
+<pre><code class="language-typescript">import { createStatTemplate } from &#39;@motioneffector/stats&#39;
+
+const fighterTemplate = createStatTemplate({
+  stats: {
+    strength: { default: 16, min: 1, max: 20 },
+    dexterity: { default: 14, min: 1, max: 20 },
+    constitution: { default: 14, min: 1, max: 20 },
+    intelligence: { default: 10, min: 1, max: 20 },
+    wisdom: { default: 10, min: 1, max: 20 },
+    charisma: { default: 10, min: 1, max: 20 },
+    health: { default: 12, min: 0 },
+    level: { default: 1 }
+  }
+})
+
+const wizardTemplate = createStatTemplate({
+  stats: {
+    strength: { default: 8, min: 1, max: 20 },
+    dexterity: { default: 14, min: 1, max: 20 },
+    constitution: { default: 12, min: 1, max: 20 },
+    intelligence: { default: 16, min: 1, max: 20 },
+    wisdom: { default: 12, min: 1, max: 20 },
+    charisma: { default: 10, min: 1, max: 20 },
+    health: { default: 6, min: 0 },
+    level: { default: 1 }
+  }
+})
+
+// Player picks a class
+const player = fighterTemplate.create({ strength: 18 })
+</code></pre>
+<h3>Item Templates</h3>
+<pre><code class="language-typescript">import { createStatTemplate } from &#39;@motioneffector/stats&#39;
+
+const weaponTemplate = createStatTemplate({
+  stats: {
+    damage: { default: 6 },
+    weight: { default: 3 },
+    durability: { default: 100, min: 0, max: 100 }
+  }
+})
+
+const sword = weaponTemplate.create()
+const greatsword = weaponTemplate.create({ damage: 12, weight: 6 })
+</code></pre>
+<h3>Factory Functions with Templates</h3>
+<pre><code class="language-typescript">import { createStatTemplate, createDerivedStat } from &#39;@motioneffector/stats&#39;
+
+const baseCharacterTemplate = createStatTemplate({
+  stats: {
+    strength: { default: 10, min: 1, max: 20 }
+  }
+})
+
+function createCharacter(overrides?: Record&lt;string, number&gt;) {
+  const character = baseCharacterTemplate.create(overrides)
+
+  // Add derived stats
+  createDerivedStat(character, &#39;carryCapacity&#39;, (s) =&gt; s.get(&#39;strength&#39;)! * 15)
+
+  return character
+}
+
+const hero = createCharacter({ strength: 16 })
+console.log(hero.get(&#39;carryCapacity&#39;)) // 240
+</code></pre>
+<h2>Troubleshooting</h2>
+<h3>Unknown Override Warning</h3>
+<p><strong>Symptom:</strong> Console warning about unknown stat in override.</p>
+<p><strong>Cause:</strong> You passed an override for a stat not in the template.</p>
+<p><strong>Solution:</strong> Check spelling. Only stats defined in the template can be overridden.</p>
+<h3>Templates Sharing State</h3>
+<p><strong>Symptom:</strong> Changing one instance affects another.</p>
+<p><strong>Cause:</strong> This shouldn&#39;t happen—each <code>create()</code> returns an independent stat block.</p>
+<p><strong>Solution:</strong> Verify you&#39;re calling <code>create()</code> for each instance, not reusing the same stat block.</p>
+<h2>See Also</h2>
+<ul>
+<li><strong><a href="concept-stat-blocks.html">Stat Blocks</a></strong> — Understanding stat blocks</li>
+<li><strong><a href="guide-saving-and-loading-state.html">Saving and Loading State</a></strong> — Persisting template instances</li>
+<li><strong><a href="api-utilities.html">Utilities API</a></strong> — <code>createStatTemplate</code> reference</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

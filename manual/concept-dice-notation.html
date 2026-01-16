@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dice Notation - @motioneffector/stats</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/stats</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/stats" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/stats" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/stats</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-character.html">Your First Character</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-stat-blocks.html">Stat Blocks</a></li>
+<li><a href="concept-dice-notation.html">Dice Notation</a></li>
+<li><a href="concept-modifiers.html">Modifiers</a></li>
+<li><a href="concept-checks-and-contests.html">Checks and Contests</a></li>
+<li><a href="concept-derived-stats.html">Derived Stats</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-rolling-dice.html">Rolling Dice</a></li>
+<li><a href="guide-working-with-modifiers.html">Working with Modifiers</a></li>
+<li><a href="guide-making-checks.html">Making Checks</a></li>
+<li><a href="guide-using-derived-stats.html">Using Derived Stats</a></li>
+<li><a href="guide-saving-and-loading-state.html">Saving and Loading State</a></li>
+<li><a href="guide-using-stat-templates.html">Using Stat Templates</a></li>
+<li><a href="guide-using-roll-tables.html">Using Roll Tables</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-dice.html">Dice API</a></li>
+<li><a href="api-stat-block.html">Stat Block API</a></li>
+<li><a href="api-checks.html">Checks API</a></li>
+<li><a href="api-utilities.html">Utilities API</a></li>
+<li><a href="api-types.html">Types</a></li>
+<li><a href="api-errors.html">Errors</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Dice Notation</h1>
+<p>Dice notation is a mini-language for describing dice rolls. Instead of writing code to roll three six-sided dice and add four, you write <code>3d6+4</code>. The library parses this notation and executes the roll, handling all the complexity of keep/drop, explosions, and rerolls.</p>
+<h2>How It Works</h2>
+<p>The basic format is <code>[count]d[sides][modifiers]</code>:</p>
+<ul>
+<li><strong>count</strong>: Number of dice to roll (default: 1)</li>
+<li><strong>d</strong>: The separator (case-insensitive)</li>
+<li><strong>sides</strong>: Number of sides on each die</li>
+<li><strong>modifiers</strong>: Optional additions like <code>+3</code>, <code>kh2</code>, or <code>!</code></li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li><code>d20</code> — Roll one 20-sided die</li>
+<li><code>2d6</code> — Roll two 6-sided dice, sum them</li>
+<li><code>4d6kh3</code> — Roll four d6, keep the highest three</li>
+<li><code>1d6!</code> — Roll a d6, explode on max (roll again and add)</li>
+<li><code>2d20kl1</code> — Roll two d20, keep the lowest (disadvantage)</li>
+</ul>
+<h2>Basic Usage</h2>
+<pre><code class="language-typescript">import { roll } from &#39;@motioneffector/stats&#39;
+
+const result = roll(&#39;2d6+3&#39;)
+
+console.log(result.total)    // e.g., 11 (sum of dice + modifier)
+console.log(result.rolls)    // e.g., [4, 4] (individual die results)
+console.log(result.kept)     // e.g., [4, 4] (dice that counted)
+console.log(result.modifier) // 3 (flat modifier from notation)
+console.log(result.notation) // &#39;2d6+3&#39; (original input)
+</code></pre>
+<p>The <code>rolls</code> array shows every die rolled. The <code>kept</code> array shows which dice contributed to the total (relevant when using keep/drop).</p>
+<h2>Key Points</h2>
+<ul>
+<li><strong>Case insensitive</strong> — <code>2D6</code>, <code>2d6</code>, and <code>2D6</code> all work the same.</li>
+<li><strong>Implied count</strong> — <code>d20</code> means <code>1d20</code>.</li>
+<li><strong>Modifiers stack</strong> — <code>2d6+3-1</code> results in a +2 modifier.</li>
+<li><strong>Keep/drop affects <code>kept</code></strong> — With <code>4d6kh3</code>, all four dice appear in <code>rolls</code>, but only three appear in <code>kept</code>.</li>
+<li><strong>Order matters for some modifiers</strong> — Exploding happens before rerolls.</li>
+</ul>
+<h2>Modifier Reference</h2>
+<h3>Flat Modifiers</h3>
+<p>Add or subtract a fixed number:</p>
+<pre><code class="language-typescript">roll(&#39;1d20+5&#39;)  // Add 5 to total
+roll(&#39;2d6-2&#39;)   // Subtract 2 from total
+roll(&#39;1d8+2-1&#39;) // Net +1 modifier
+</code></pre>
+<h3>Keep Highest (kh)</h3>
+<p>Keep only the N highest dice:</p>
+<pre><code class="language-typescript">roll(&#39;4d6kh3&#39;)  // Roll 4d6, keep highest 3 (ability score generation)
+roll(&#39;2d20kh1&#39;) // Roll 2d20, keep highest (advantage)
+</code></pre>
+<h3>Keep Lowest (kl)</h3>
+<p>Keep only the N lowest dice:</p>
+<pre><code class="language-typescript">roll(&#39;2d20kl1&#39;) // Roll 2d20, keep lowest (disadvantage)
+roll(&#39;4d6kl2&#39;)  // Roll 4d6, keep lowest 2
+</code></pre>
+<h3>Drop Highest (dh)</h3>
+<p>Drop the N highest dice, keep the rest:</p>
+<pre><code class="language-typescript">roll(&#39;4d6dh1&#39;) // Roll 4d6, drop highest 1 (same as kl3)
+</code></pre>
+<h3>Drop Lowest (dl)</h3>
+<p>Drop the N lowest dice, keep the rest:</p>
+<pre><code class="language-typescript">roll(&#39;4d6dl1&#39;) // Roll 4d6, drop lowest 1 (same as kh3)
+</code></pre>
+<h3>Exploding (!)</h3>
+<p>When a die rolls its maximum value, roll again and add:</p>
+<pre><code class="language-typescript">roll(&#39;1d6!&#39;)  // If you roll 6, roll again and add
+roll(&#39;3d10!&#39;) // Each die that rolls 10 explodes
+</code></pre>
+<p>Explosions can chain—rolling max again triggers another explosion (up to 100 times to prevent infinite loops).</p>
+<h3>Reroll (r)</h3>
+<p>Reroll dice matching a condition (once per die):</p>
+<pre><code class="language-typescript">roll(&#39;1d20r1&#39;)   // Reroll 1s
+roll(&#39;4d6r&lt;=2&#39;)  // Reroll dice showing 1 or 2
+roll(&#39;2d6r&lt;3&#39;)   // Reroll dice less than 3
+</code></pre>
+<p>Supported operators: <code>=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code></p>
+<h2>Examples</h2>
+<h3>D&amp;D Ability Score Generation</h3>
+<pre><code class="language-typescript">import { roll } from &#39;@motioneffector/stats&#39;
+
+// 4d6 drop lowest
+const stat = roll(&#39;4d6dl1&#39;)
+console.log(stat.total) // e.g., 14
+</code></pre>
+<h3>Attack with Advantage</h3>
+<pre><code class="language-typescript">import { roll } from &#39;@motioneffector/stats&#39;
+
+const attack = roll(&#39;2d20kh1+5&#39;)
+console.log(`Attack roll: ${attack.total}`)
+console.log(`Rolls: ${attack.rolls.join(&#39;, &#39;)}`) // Shows both d20 results
+</code></pre>
+<h3>Great Weapon Fighting (Reroll 1s and 2s)</h3>
+<pre><code class="language-typescript">import { roll } from &#39;@motioneffector/stats&#39;
+
+const damage = roll(&#39;2d6r&lt;=2+4&#39;)
+console.log(`Damage: ${damage.total}`)
+</code></pre>
+<h3>Exploding Damage</h3>
+<pre><code class="language-typescript">import { roll } from &#39;@motioneffector/stats&#39;
+
+const crit = roll(&#39;4d6!&#39;)
+console.log(`Explosive damage: ${crit.total}`)
+console.log(`All rolls: ${crit.rolls.join(&#39;, &#39;)}`) // May have more than 4 values
+</code></pre>
+<h2>Related</h2>
+<ul>
+<li><strong><a href="guide-rolling-dice.html">Rolling Dice</a></strong> — Practical guide with common patterns</li>
+<li><strong><a href="api-dice.html">Dice API</a></strong> — Full <code>roll()</code> function reference</li>
+<li><strong><a href="concept-checks-and-contests.html">Checks and Contests</a></strong> — Using dice rolls in skill checks</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

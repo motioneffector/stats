@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Utilities API - @motioneffector/stats</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/stats</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/stats" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/stats" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/stats</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-character.html">Your First Character</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-stat-blocks.html">Stat Blocks</a></li>
+<li><a href="concept-dice-notation.html">Dice Notation</a></li>
+<li><a href="concept-modifiers.html">Modifiers</a></li>
+<li><a href="concept-checks-and-contests.html">Checks and Contests</a></li>
+<li><a href="concept-derived-stats.html">Derived Stats</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-rolling-dice.html">Rolling Dice</a></li>
+<li><a href="guide-working-with-modifiers.html">Working with Modifiers</a></li>
+<li><a href="guide-making-checks.html">Making Checks</a></li>
+<li><a href="guide-using-derived-stats.html">Using Derived Stats</a></li>
+<li><a href="guide-saving-and-loading-state.html">Saving and Loading State</a></li>
+<li><a href="guide-using-stat-templates.html">Using Stat Templates</a></li>
+<li><a href="guide-using-roll-tables.html">Using Roll Tables</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-dice.html">Dice API</a></li>
+<li><a href="api-stat-block.html">Stat Block API</a></li>
+<li><a href="api-checks.html">Checks API</a></li>
+<li><a href="api-utilities.html">Utilities API</a></li>
+<li><a href="api-types.html">Types</a></li>
+<li><a href="api-errors.html">Errors</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Utilities API</h1>
+<p>Helper functions for templates and random tables.</p>
+<hr>
+<h2><code>createStatTemplate()</code></h2>
+<p>Create a reusable stat block template.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">function createStatTemplate(config: StatTemplateConfig): StatTemplate
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>config</code></td>
+<td><code>StatTemplateConfig</code></td>
+<td>Yes</td>
+<td>Template configuration</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>StatTemplate</code> — Template that can create stat blocks</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">import { createStatTemplate } from &#39;@motioneffector/stats&#39;
+
+const goblinTemplate = createStatTemplate({
+  stats: {
+    strength: { default: 8, min: 1, max: 20 },
+    health: { default: 7, min: 0 }
+  }
+})
+
+const goblin = goblinTemplate.create()
+const toughGoblin = goblinTemplate.create({ health: 14 })
+</code></pre>
+<hr>
+<h2>StatTemplate Methods</h2>
+<h3><code>create()</code></h3>
+<p>Create a new stat block from the template.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">create(overrides?: Record&lt;string, number&gt;): StatBlock
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>overrides</code></td>
+<td><code>Record&lt;string, number&gt;</code></td>
+<td>No</td>
+<td>Values to override defaults</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>StatBlock</code> — A new stat block</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">const goblin = goblinTemplate.create()              // Use all defaults
+const boss = goblinTemplate.create({ health: 50 })  // Override health
+</code></pre>
+<hr>
+<h2><code>rollTable()</code></h2>
+<p>Select a random entry from a weighted table.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">function rollTable&lt;T&gt;(entries: RollTableEntry&lt;T&gt;[]): T
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>entries</code></td>
+<td><code>RollTableEntry&lt;T&gt;[]</code></td>
+<td>Yes</td>
+<td>Array of weighted entries</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>T</code> — The selected entry&#39;s value</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">import { rollTable } from &#39;@motioneffector/stats&#39;
+
+const loot = rollTable([
+  { weight: 10, value: &#39;gold&#39; },
+  { weight: 5, value: &#39;potion&#39; },
+  { weight: 1, value: &#39;rare sword&#39; }
+])
+
+console.log(loot) // e.g., &#39;gold&#39;
+</code></pre>
+<p><strong>Throws:</strong></p>
+<ul>
+<li><code>ValidationError</code> — If table is empty, has negative weights, or all weights are zero</li>
+</ul>
+<hr>
+<h2>Types</h2>
+<h3><code>StatTemplateConfig</code></h3>
+<pre><code class="language-typescript">interface StatTemplateConfig {
+  stats: Record&lt;string, {
+    default: number
+    min?: number
+    max?: number
+  }&gt;
+  options?: StatBlockOptions
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>stats</code></td>
+<td><code>Record&lt;...&gt;</code></td>
+<td>Stat definitions with default values</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><code>StatBlockOptions</code></td>
+<td>Options passed to created stat blocks</td>
+</tr>
+</tbody></table>
+<h3><code>StatTemplate</code></h3>
+<pre><code class="language-typescript">interface StatTemplate {
+  create(overrides?: Record&lt;string, number&gt;): StatBlock
+}
+</code></pre>
+<h3><code>RollTableEntry&lt;T&gt;</code></h3>
+<pre><code class="language-typescript">interface RollTableEntry&lt;T&gt; {
+  weight: number
+  value: T
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>weight</code></td>
+<td><code>number</code></td>
+<td>Relative probability (higher = more likely)</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td><code>T</code></td>
+<td>The value returned if selected</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Related</h2>
+<ul>
+<li><strong><a href="guide-using-stat-templates.html">Using Stat Templates</a></strong> — Template usage guide</li>
+<li><strong><a href="guide-using-roll-tables.html">Using Roll Tables</a></strong> — Roll table patterns</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

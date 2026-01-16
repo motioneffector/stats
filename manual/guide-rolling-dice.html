@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rolling Dice - @motioneffector/stats</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/stats</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/stats" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/stats" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/stats</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-character.html">Your First Character</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-stat-blocks.html">Stat Blocks</a></li>
+<li><a href="concept-dice-notation.html">Dice Notation</a></li>
+<li><a href="concept-modifiers.html">Modifiers</a></li>
+<li><a href="concept-checks-and-contests.html">Checks and Contests</a></li>
+<li><a href="concept-derived-stats.html">Derived Stats</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-rolling-dice.html">Rolling Dice</a></li>
+<li><a href="guide-working-with-modifiers.html">Working with Modifiers</a></li>
+<li><a href="guide-making-checks.html">Making Checks</a></li>
+<li><a href="guide-using-derived-stats.html">Using Derived Stats</a></li>
+<li><a href="guide-saving-and-loading-state.html">Saving and Loading State</a></li>
+<li><a href="guide-using-stat-templates.html">Using Stat Templates</a></li>
+<li><a href="guide-using-roll-tables.html">Using Roll Tables</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-dice.html">Dice API</a></li>
+<li><a href="api-stat-block.html">Stat Block API</a></li>
+<li><a href="api-checks.html">Checks API</a></li>
+<li><a href="api-utilities.html">Utilities API</a></li>
+<li><a href="api-types.html">Types</a></li>
+<li><a href="api-errors.html">Errors</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Rolling Dice</h1>
+<p>Roll dice using standard RPG notation and get detailed results including individual rolls, kept dice, and modifiers.</p>
+<h2>Prerequisites</h2>
+<p>Before starting, you should:</p>
+<ul>
+<li>Understand <a href="concept-dice-notation.html">dice notation basics</a></li>
+</ul>
+<h2>Overview</h2>
+<p>We&#39;ll cover:</p>
+<ol>
+<li>Basic dice rolling</li>
+<li>Reading the result object</li>
+<li>Using keep/drop modifiers</li>
+<li>Exploding and reroll mechanics</li>
+</ol>
+<h2>Step 1: Roll Basic Dice</h2>
+<p>Import the <code>roll</code> function and pass a notation string.</p>
+<pre><code class="language-typescript">import { roll } from &#39;@motioneffector/stats&#39;
+
+const result = roll(&#39;2d6+3&#39;)
+console.log(result.total) // e.g., 11
+</code></pre>
+<p>The notation <code>2d6+3</code> means: roll 2 six-sided dice and add 3.</p>
+<h2>Step 2: Read the Result Object</h2>
+<p>The result contains everything about the roll:</p>
+<pre><code class="language-typescript">import { roll } from &#39;@motioneffector/stats&#39;
+
+const result = roll(&#39;3d8+2&#39;)
+
+console.log(result.total)    // Final sum (e.g., 17)
+console.log(result.rolls)    // Individual dice [4, 6, 5]
+console.log(result.kept)     // Dice that counted [4, 5, 6]
+console.log(result.modifier) // Flat modifier (2)
+console.log(result.notation) // Original string (&#39;3d8+2&#39;)
+</code></pre>
+<ul>
+<li><code>total</code> = sum of <code>kept</code> + <code>modifier</code></li>
+<li><code>rolls</code> shows every die rolled (before keep/drop)</li>
+<li><code>kept</code> shows dice that contributed to the total</li>
+</ul>
+<h2>Step 3: Use Keep/Drop for Advantage</h2>
+<p>Roll multiple dice and keep only some of them:</p>
+<pre><code class="language-typescript">import { roll } from &#39;@motioneffector/stats&#39;
+
+// Advantage: roll 2d20, keep highest
+const advantage = roll(&#39;2d20kh1&#39;)
+console.log(`Rolled ${advantage.rolls.join(&#39; and &#39;)}, kept ${advantage.kept[0]}`)
+
+// Disadvantage: roll 2d20, keep lowest
+const disadvantage = roll(&#39;2d20kl1&#39;)
+console.log(`Rolled ${disadvantage.rolls.join(&#39; and &#39;)}, kept ${disadvantage.kept[0]}`)
+</code></pre>
+<p>Common patterns:</p>
+<ul>
+<li><code>2d20kh1</code> — Advantage (keep highest)</li>
+<li><code>2d20kl1</code> — Disadvantage (keep lowest)</li>
+<li><code>4d6kh3</code> — Ability score generation (keep highest 3)</li>
+<li><code>4d6dl1</code> — Same as above (drop lowest 1)</li>
+</ul>
+<h2>Step 4: Use Exploding Dice</h2>
+<p>Add <code>!</code> to make dice explode (roll again on max value):</p>
+<pre><code class="language-typescript">import { roll } from &#39;@motioneffector/stats&#39;
+
+const explosive = roll(&#39;2d6!&#39;)
+
+console.log(explosive.rolls) // May have more than 2 values if explosions occurred
+console.log(explosive.total)
+</code></pre>
+<p>If a d6 rolls a 6, it explodes—roll again and add to the total. Explosions can chain.</p>
+<h2>Step 5: Reroll Low Values</h2>
+<p>Use <code>r</code> to reroll dice matching a condition:</p>
+<pre><code class="language-typescript">import { roll } from &#39;@motioneffector/stats&#39;
+
+// Reroll 1s (Great Weapon Fighting style)
+const gwf = roll(&#39;2d6r1&#39;)
+
+// Reroll 1s and 2s
+const gwfBetter = roll(&#39;2d6r&lt;=2&#39;)
+</code></pre>
+<p>Each die rerolls at most once. The <code>rolls</code> array shows both the original and rerolled values.</p>
+<h2>Complete Example</h2>
+<pre><code class="language-typescript">import { roll } from &#39;@motioneffector/stats&#39;
+
+// Simulate a D&amp;D attack with a greatsword
+function greatswordAttack(attackBonus: number, targetAC: number): void {
+  // Attack roll
+  const attack = roll(`1d20+${attackBonus}`)
+  console.log(`Attack: ${attack.roll} + ${attackBonus} = ${attack.total}`)
+
+  if (attack.total &gt;= targetAC) {
+    // Damage roll with Great Weapon Fighting (reroll 1s and 2s)
+    const damage = roll(&#39;2d6r&lt;=2+5&#39;)
+    console.log(`Hit! Damage: ${damage.total}`)
+    console.log(`  Dice: ${damage.rolls.join(&#39;, &#39;)}`)
+  } else {
+    console.log(&#39;Miss!&#39;)
+  }
+}
+
+greatswordAttack(7, 15)
+</code></pre>
+<h2>Variations</h2>
+<h3>Critical Hit (Double Dice)</h3>
+<pre><code class="language-typescript">import { roll } from &#39;@motioneffector/stats&#39;
+
+function rollDamage(isCritical: boolean): number {
+  const dice = isCritical ? &#39;4d6+3&#39; : &#39;2d6+3&#39;
+  return roll(dice).total
+}
+</code></pre>
+<h3>Percentile Dice (d100)</h3>
+<pre><code class="language-typescript">import { roll } from &#39;@motioneffector/stats&#39;
+
+const percentile = roll(&#39;1d100&#39;)
+console.log(`Rolled: ${percentile.total}%`)
+</code></pre>
+<h3>Savage Worlds Exploding Trait Die</h3>
+<pre><code class="language-typescript">import { roll } from &#39;@motioneffector/stats&#39;
+
+// d8 trait die + d6 wild die, both exploding
+const traitDie = roll(&#39;1d8!&#39;)
+const wildDie = roll(&#39;1d6!&#39;)
+const result = Math.max(traitDie.total, wildDie.total)
+console.log(`Best of ${traitDie.total} or ${wildDie.total}: ${result}`)
+</code></pre>
+<h2>Troubleshooting</h2>
+<h3>Invalid Notation Error</h3>
+<p><strong>Symptom:</strong> <code>ParseError: Invalid dice notation</code></p>
+<p><strong>Cause:</strong> The notation string has a syntax error.</p>
+<p><strong>Solution:</strong> Check for typos. Valid format is <code>[count]d[sides][modifiers]</code>. Examples: <code>2d6</code>, <code>d20+5</code>, <code>4d6kh3</code>.</p>
+<h3>Unexpected Total</h3>
+<p><strong>Symptom:</strong> Total doesn&#39;t match what you expected.</p>
+<p><strong>Cause:</strong> Keep/drop or explosions affected the result.</p>
+<p><strong>Solution:</strong> Check <code>result.rolls</code> and <code>result.kept</code> to see what happened. With <code>4d6kh3</code>, four dice are rolled but only three count.</p>
+<h2>See Also</h2>
+<ul>
+<li><strong><a href="concept-dice-notation.html">Dice Notation</a></strong> — Full notation reference</li>
+<li><strong><a href="guide-making-checks.html">Making Checks</a></strong> — Using dice in skill checks</li>
+<li><strong><a href="api-dice.html">Dice API</a></strong> — <code>roll()</code> function reference</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

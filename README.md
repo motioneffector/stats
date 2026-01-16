@@ -19,7 +19,7 @@ A TypeScript library for RPG stat management with D&D 5e-style mechanics, dice r
 - **Stat Templates** - Create reusable stat block configurations
 - **Serialization** - Save and restore complete stat block state
 
-[Read the full manual →](https://github.com/motioneffector/stats/wiki)
+[Read the full manual →](https://motioneffector.github.io/stats/manual/)
 
 ## Quick Start
 

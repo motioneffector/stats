@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your First Character - @motioneffector/stats</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/stats</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/stats" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/stats" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/stats</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-character.html">Your First Character</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-stat-blocks.html">Stat Blocks</a></li>
+<li><a href="concept-dice-notation.html">Dice Notation</a></li>
+<li><a href="concept-modifiers.html">Modifiers</a></li>
+<li><a href="concept-checks-and-contests.html">Checks and Contests</a></li>
+<li><a href="concept-derived-stats.html">Derived Stats</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-rolling-dice.html">Rolling Dice</a></li>
+<li><a href="guide-working-with-modifiers.html">Working with Modifiers</a></li>
+<li><a href="guide-making-checks.html">Making Checks</a></li>
+<li><a href="guide-using-derived-stats.html">Using Derived Stats</a></li>
+<li><a href="guide-saving-and-loading-state.html">Saving and Loading State</a></li>
+<li><a href="guide-using-stat-templates.html">Using Stat Templates</a></li>
+<li><a href="guide-using-roll-tables.html">Using Roll Tables</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-dice.html">Dice API</a></li>
+<li><a href="api-stat-block.html">Stat Block API</a></li>
+<li><a href="api-checks.html">Checks API</a></li>
+<li><a href="api-utilities.html">Utilities API</a></li>
+<li><a href="api-types.html">Types</a></li>
+<li><a href="api-errors.html">Errors</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Your First Character</h1>
+<p>Create a character with stats, roll dice for damage, and make skill checks—all in about 5 minutes.</p>
+<p>By the end of this guide, you&#39;ll have a working character that can take damage, receive buffs, and make strength checks.</p>
+<h2>What We&#39;re Building</h2>
+<p>A simple hero with three stats: strength, dexterity, and health. You&#39;ll roll dice to deal damage, apply a temporary buff, and make a skill check against a difficulty class.</p>
+<h2>Step 1: Create a Stat Block</h2>
+<p>Every character starts with a stat block—a container for all their stats.</p>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  strength: { base: 16, min: 1, max: 20 },
+  dexterity: { base: 14, min: 1, max: 20 },
+  health: { base: 45, min: 0, max: 100 }
+})
+</code></pre>
+<p>Each stat has a <code>base</code> value and optional <code>min</code>/<code>max</code> bounds. The bounds prevent stats from going below or above the limits.</p>
+<h2>Step 2: Read and Modify Stats</h2>
+<p>Get stat values with <code>get()</code> and change them with <code>set()</code> or <code>modify()</code>.</p>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  strength: { base: 16, min: 1, max: 20 },
+  health: { base: 45, min: 0, max: 100 }
+})
+
+console.log(hero.get(&#39;health&#39;)) // 45
+
+// Take 10 damage
+hero.modify(&#39;health&#39;, -10)
+console.log(hero.get(&#39;health&#39;)) // 35
+
+// Heal to full
+hero.set(&#39;health&#39;, 100)
+console.log(hero.get(&#39;health&#39;)) // 100
+</code></pre>
+<p>The <code>modify()</code> method adds or subtracts from the current base. The <code>set()</code> method replaces it entirely. Both respect the min/max bounds.</p>
+<h2>Step 3: Roll Dice</h2>
+<p>Use the <code>roll()</code> function with standard dice notation.</p>
+<pre><code class="language-typescript">import { roll } from &#39;@motioneffector/stats&#39;
+
+const damage = roll(&#39;2d6+3&#39;)
+console.log(damage.total)    // e.g., 11
+console.log(damage.rolls)    // e.g., [4, 4]
+console.log(damage.modifier) // 3
+</code></pre>
+<p>The result includes the total, individual die rolls, and any flat modifier from the notation.</p>
+<h2>Step 4: Make a Skill Check</h2>
+<p>Use <code>check()</code> to roll against a difficulty class (DC) using D&amp;D 5e mechanics.</p>
+<pre><code class="language-typescript">import { createStatBlock, check } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  strength: { base: 16, min: 1, max: 20 }
+})
+
+const result = check(hero, &#39;strength&#39;, { difficulty: 15 })
+
+console.log(result.success)  // true or false
+console.log(result.roll)     // the d20 roll
+console.log(result.modifier) // +3 (from 16 strength)
+console.log(result.total)    // roll + modifier
+</code></pre>
+<p>The modifier is calculated using the D&amp;D formula: <code>Math.floor((stat - 10) / 2)</code>. A strength of 16 gives a +3 modifier.</p>
+<h2>The Complete Code</h2>
+<p>Here&#39;s everything together:</p>
+<pre><code class="language-typescript">import { createStatBlock, roll, check } from &#39;@motioneffector/stats&#39;
+
+// Create a hero
+const hero = createStatBlock({
+  strength: { base: 16, min: 1, max: 20 },
+  dexterity: { base: 14, min: 1, max: 20 },
+  health: { base: 45, min: 0, max: 100 }
+})
+
+// Roll for damage
+const damage = roll(&#39;2d6+3&#39;)
+console.log(`Dealt ${damage.total} damage`)
+
+// Apply damage to enemy (or self for testing)
+hero.modify(&#39;health&#39;, -damage.total)
+console.log(`Health: ${hero.get(&#39;health&#39;)}`)
+
+// Make a strength check to lift a boulder (DC 15)
+const liftCheck = check(hero, &#39;strength&#39;, { difficulty: 15 })
+if (liftCheck.success) {
+  console.log(`Success! Rolled ${liftCheck.total} vs DC 15`)
+} else {
+  console.log(`Failed. Rolled ${liftCheck.total} vs DC 15`)
+}
+</code></pre>
+<h2>What&#39;s Next?</h2>
+<p>Now that you have the basics:</p>
+<ul>
+<li><strong><a href="concept-stat-blocks.html">Understand Stat Blocks</a></strong> — Learn how stats, bounds, and effective values work</li>
+<li><strong><a href="guide-working-with-modifiers.html">Add Temporary Buffs</a></strong> — Apply modifiers that expire over time</li>
+<li><strong><a href="guide-making-checks.html">Make Checks with Advantage</a></strong> — Roll with advantage, disadvantage, and custom dice</li>
+<li><strong><a href="api-stat-block.html">Explore the API</a></strong> — Full reference for all stat block methods</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

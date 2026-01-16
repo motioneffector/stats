@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Working with Modifiers - @motioneffector/stats</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/stats</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/stats" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/stats" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/stats</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-character.html">Your First Character</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-stat-blocks.html">Stat Blocks</a></li>
+<li><a href="concept-dice-notation.html">Dice Notation</a></li>
+<li><a href="concept-modifiers.html">Modifiers</a></li>
+<li><a href="concept-checks-and-contests.html">Checks and Contests</a></li>
+<li><a href="concept-derived-stats.html">Derived Stats</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-rolling-dice.html">Rolling Dice</a></li>
+<li><a href="guide-working-with-modifiers.html">Working with Modifiers</a></li>
+<li><a href="guide-making-checks.html">Making Checks</a></li>
+<li><a href="guide-using-derived-stats.html">Using Derived Stats</a></li>
+<li><a href="guide-saving-and-loading-state.html">Saving and Loading State</a></li>
+<li><a href="guide-using-stat-templates.html">Using Stat Templates</a></li>
+<li><a href="guide-using-roll-tables.html">Using Roll Tables</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-dice.html">Dice API</a></li>
+<li><a href="api-stat-block.html">Stat Block API</a></li>
+<li><a href="api-checks.html">Checks API</a></li>
+<li><a href="api-utilities.html">Utilities API</a></li>
+<li><a href="api-types.html">Types</a></li>
+<li><a href="api-errors.html">Errors</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Working with Modifiers</h1>
+<p>Add temporary buffs, permanent equipment bonuses, and debuffs that expire over time. Track modifier durations and manage stacking effects.</p>
+<h2>Prerequisites</h2>
+<p>Before starting, you should:</p>
+<ul>
+<li><a href="your-first-character.html">Create a stat block</a></li>
+<li>Understand <a href="concept-modifiers.html">how modifiers work</a></li>
+</ul>
+<h2>Overview</h2>
+<p>We&#39;ll cover:</p>
+<ol>
+<li>Adding modifiers to stats</li>
+<li>Viewing and removing modifiers</li>
+<li>Setting up timed modifiers</li>
+<li>Using the tick system for expiration</li>
+<li>Handling modifier stacking</li>
+</ol>
+<h2>Step 1: Add a Modifier</h2>
+<p>Use <code>addModifier()</code> with the stat name and modifier details:</p>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  strength: { base: 14 }
+})
+
+hero.addModifier(&#39;strength&#39;, {
+  value: 2,
+  source: &#39;bull-strength&#39;
+})
+
+console.log(hero.get(&#39;strength&#39;)) // 16 (14 + 2)
+console.log(hero.getBase(&#39;strength&#39;)) // 14 (unchanged)
+</code></pre>
+<p>The <code>source</code> is a unique identifier for the modifier. Use descriptive names.</p>
+<h2>Step 2: View Active Modifiers</h2>
+<p>Use <code>getModifiers()</code> to see all modifiers on a stat:</p>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  armor: { base: 10 }
+})
+
+hero.addModifier(&#39;armor&#39;, { value: 2, source: &#39;shield&#39; })
+hero.addModifier(&#39;armor&#39;, { value: 3, source: &#39;chainmail&#39; })
+
+const mods = hero.getModifiers(&#39;armor&#39;)
+console.log(mods)
+// [
+//   { value: 2, source: &#39;shield&#39;, type: &#39;flat&#39;, duration: &#39;permanent&#39; },
+//   { value: 3, source: &#39;chainmail&#39;, type: &#39;flat&#39;, duration: &#39;permanent&#39; }
+// ]
+</code></pre>
+<h2>Step 3: Remove a Modifier</h2>
+<p>Use <code>removeModifier()</code> with the stat name and source:</p>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  armor: { base: 10 }
+})
+
+hero.addModifier(&#39;armor&#39;, { value: 2, source: &#39;shield&#39; })
+hero.get(&#39;armor&#39;) // 12
+
+hero.removeModifier(&#39;armor&#39;, &#39;shield&#39;)
+hero.get(&#39;armor&#39;) // 10
+</code></pre>
+<p>Returns <code>true</code> if a modifier was removed, <code>false</code> if not found.</p>
+<h2>Step 4: Add Timed Modifiers</h2>
+<p>Set <code>duration</code> to make modifiers expire:</p>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  speed: { base: 30 }
+})
+
+// Lasts for 3 ticks (e.g., 3 rounds)
+hero.addModifier(&#39;speed&#39;, {
+  value: 10,
+  source: &#39;haste&#39;,
+  duration: 3
+})
+
+// Lasts for 1 tick
+hero.addModifier(&#39;speed&#39;, {
+  value: 5,
+  source: &#39;dash&#39;,
+  duration: &#39;temporary&#39;
+})
+
+console.log(hero.get(&#39;speed&#39;)) // 45
+</code></pre>
+<h2>Step 5: Advance Time with tick()</h2>
+<p>Call <code>tick()</code> to decrement durations and expire modifiers:</p>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  speed: { base: 30 }
+})
+
+hero.addModifier(&#39;speed&#39;, { value: 10, source: &#39;haste&#39;, duration: 2 })
+
+console.log(hero.get(&#39;speed&#39;)) // 40
+
+hero.tick() // 1 tick remaining
+console.log(hero.get(&#39;speed&#39;)) // 40
+
+hero.tick() // Haste expires
+console.log(hero.get(&#39;speed&#39;)) // 30
+</code></pre>
+<p>The <code>tick()</code> method returns an array of expired modifier sources:</p>
+<pre><code class="language-typescript">const expired = hero.tick()
+console.log(expired) // [&#39;haste&#39;]
+</code></pre>
+<h2>Step 6: Check Remaining Duration</h2>
+<p>Use <code>getRemainingDuration()</code> to see how many ticks are left:</p>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  strength: { base: 14 }
+})
+
+hero.addModifier(&#39;strength&#39;, { value: 4, source: &#39;rage&#39;, duration: 5 })
+
+console.log(hero.getRemainingDuration(&#39;strength&#39;, &#39;rage&#39;)) // 5
+
+hero.tick()
+hero.tick()
+
+console.log(hero.getRemainingDuration(&#39;strength&#39;, &#39;rage&#39;)) // 3
+</code></pre>
+<p>Returns <code>Infinity</code> for permanent modifiers, <code>undefined</code> if not found.</p>
+<h2>Complete Example</h2>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  strength: { base: 14 },
+  armor: { base: 10 },
+  speed: { base: 30 }
+})
+
+// Permanent equipment
+hero.addModifier(&#39;armor&#39;, { value: 5, source: &#39;plate-armor&#39; })
+hero.addModifier(&#39;armor&#39;, { value: 2, source: &#39;shield&#39; })
+
+// Temporary buff (3 rounds)
+hero.addModifier(&#39;strength&#39;, { value: 4, source: &#39;rage&#39;, duration: 3 })
+
+// One-round dash
+hero.addModifier(&#39;speed&#39;, { value: 15, source: &#39;dash&#39;, duration: &#39;temporary&#39; })
+
+console.log(&#39;Round start:&#39;)
+console.log(`  Strength: ${hero.get(&#39;strength&#39;)}`) // 18
+console.log(`  Armor: ${hero.get(&#39;armor&#39;)}`)       // 17
+console.log(`  Speed: ${hero.get(&#39;speed&#39;)}`)       // 45
+
+// End of round
+const expired = hero.tick()
+console.log(`Expired: ${expired.join(&#39;, &#39;)}`) // &#39;dash&#39;
+
+console.log(&#39;Round 2:&#39;)
+console.log(`  Speed: ${hero.get(&#39;speed&#39;)}`) // 30 (dash expired)
+console.log(`  Rage remaining: ${hero.getRemainingDuration(&#39;strength&#39;, &#39;rage&#39;)}`) // 2
+</code></pre>
+<h2>Variations</h2>
+<h3>Percentage Buff (Multiply Modifier)</h3>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const stats = createStatBlock({
+  damage: { base: 20 }
+})
+
+// 50% damage increase
+stats.addModifier(&#39;damage&#39;, {
+  value: 1.5,
+  source: &#39;power-attack&#39;,
+  type: &#39;multiply&#39;
+})
+
+console.log(stats.get(&#39;damage&#39;)) // 30
+</code></pre>
+<h3>Stacking Multiple Flat Modifiers</h3>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  attack: { base: 5 }
+})
+
+hero.addModifier(&#39;attack&#39;, { value: 2, source: &#39;bless&#39; })
+hero.addModifier(&#39;attack&#39;, { value: 1, source: &#39;bardic-inspiration&#39; })
+hero.addModifier(&#39;attack&#39;, { value: 3, source: &#39;magic-weapon&#39; })
+
+console.log(hero.get(&#39;attack&#39;)) // 11 (5 + 2 + 1 + 3)
+</code></pre>
+<h3>Replacing a Modifier (Same Source)</h3>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  strength: { base: 14 }
+})
+
+hero.addModifier(&#39;strength&#39;, { value: 2, source: &#39;enhancement&#39; })
+console.log(hero.get(&#39;strength&#39;)) // 16
+
+// Adding with same source replaces
+hero.addModifier(&#39;strength&#39;, { value: 4, source: &#39;enhancement&#39; })
+console.log(hero.get(&#39;strength&#39;)) // 18 (not 20)
+</code></pre>
+<h3>Clearing All Modifiers</h3>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  strength: { base: 14 }
+})
+
+hero.addModifier(&#39;strength&#39;, { value: 2, source: &#39;buff1&#39; })
+hero.addModifier(&#39;strength&#39;, { value: 3, source: &#39;buff2&#39; })
+
+// Clear modifiers from one stat
+hero.clearModifiers(&#39;strength&#39;)
+
+// Or clear all modifiers from all stats
+hero.clearModifiers()
+</code></pre>
+<h2>Troubleshooting</h2>
+<h3>Modifier Not Applying</h3>
+<p><strong>Symptom:</strong> <code>get()</code> returns the base value even after adding a modifier.</p>
+<p><strong>Cause:</strong> The modifier might be on a different stat, or it was removed.</p>
+<p><strong>Solution:</strong> Check <code>getModifiers(statName)</code> to see active modifiers. Verify the stat name matches.</p>
+<h3>Modifier Replaced Unexpectedly</h3>
+<p><strong>Symptom:</strong> Adding a modifier removed an existing one.</p>
+<p><strong>Cause:</strong> Both modifiers have the same <code>source</code> name.</p>
+<p><strong>Solution:</strong> Use unique source names for each modifier. Sources like <code>&#39;buff&#39;</code> are too generic.</p>
+<h2>See Also</h2>
+<ul>
+<li><strong><a href="concept-modifiers.html">Modifiers</a></strong> — Conceptual overview</li>
+<li><strong><a href="concept-stat-blocks.html">Stat Blocks</a></strong> — Understanding base vs effective values</li>
+<li><strong><a href="api-stat-block.html">Stat Block API</a></strong> — Full method reference</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dice API - @motioneffector/stats</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/stats</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/stats" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/stats" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/stats</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-character.html">Your First Character</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-stat-blocks.html">Stat Blocks</a></li>
+<li><a href="concept-dice-notation.html">Dice Notation</a></li>
+<li><a href="concept-modifiers.html">Modifiers</a></li>
+<li><a href="concept-checks-and-contests.html">Checks and Contests</a></li>
+<li><a href="concept-derived-stats.html">Derived Stats</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-rolling-dice.html">Rolling Dice</a></li>
+<li><a href="guide-working-with-modifiers.html">Working with Modifiers</a></li>
+<li><a href="guide-making-checks.html">Making Checks</a></li>
+<li><a href="guide-using-derived-stats.html">Using Derived Stats</a></li>
+<li><a href="guide-saving-and-loading-state.html">Saving and Loading State</a></li>
+<li><a href="guide-using-stat-templates.html">Using Stat Templates</a></li>
+<li><a href="guide-using-roll-tables.html">Using Roll Tables</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-dice.html">Dice API</a></li>
+<li><a href="api-stat-block.html">Stat Block API</a></li>
+<li><a href="api-checks.html">Checks API</a></li>
+<li><a href="api-utilities.html">Utilities API</a></li>
+<li><a href="api-types.html">Types</a></li>
+<li><a href="api-errors.html">Errors</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Dice API</h1>
+<p>Functions for rolling dice with standard RPG notation.</p>
+<hr>
+<h2><code>roll()</code></h2>
+<p>Roll dice using RPG notation and get detailed results.</p>
+<p><strong>Signature:</strong></p>
+<pre><code class="language-typescript">function roll(notation: string, options?: RollOptions): RollResult
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>notation</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>Dice notation (e.g., <code>&quot;2d6+3&quot;</code>, <code>&quot;4d6kh3&quot;</code>)</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><code>RollOptions</code></td>
+<td>No</td>
+<td>Reserved for future use</td>
+</tr>
+</tbody></table>
+<p><strong>Returns:</strong> <code>RollResult</code> — Object containing roll details</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">import { roll } from &#39;@motioneffector/stats&#39;
+
+const result = roll(&#39;4d6kh3+2&#39;)
+
+console.log(result.total)    // e.g., 14
+console.log(result.rolls)    // e.g., [3, 4, 5, 6]
+console.log(result.kept)     // e.g., [4, 5, 6]
+console.log(result.modifier) // 2
+console.log(result.notation) // &#39;4d6kh3+2&#39;
+</code></pre>
+<p><strong>Throws:</strong></p>
+<ul>
+<li><code>ParseError</code> — When notation is invalid or malformed</li>
+</ul>
+<p><strong>Notation Reference:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Syntax</th>
+<th>Meaning</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>NdS</code></td>
+<td>Roll N dice with S sides</td>
+<td><code>2d6</code></td>
+</tr>
+<tr>
+<td><code>dS</code></td>
+<td>Roll 1 die (implied)</td>
+<td><code>d20</code></td>
+</tr>
+<tr>
+<td><code>+N</code></td>
+<td>Add N to total</td>
+<td><code>1d20+5</code></td>
+</tr>
+<tr>
+<td><code>-N</code></td>
+<td>Subtract N from total</td>
+<td><code>2d6-1</code></td>
+</tr>
+<tr>
+<td><code>khN</code></td>
+<td>Keep highest N dice</td>
+<td><code>4d6kh3</code></td>
+</tr>
+<tr>
+<td><code>klN</code></td>
+<td>Keep lowest N dice</td>
+<td><code>2d20kl1</code></td>
+</tr>
+<tr>
+<td><code>dhN</code></td>
+<td>Drop highest N dice</td>
+<td><code>4d6dh1</code></td>
+</tr>
+<tr>
+<td><code>dlN</code></td>
+<td>Drop lowest N dice</td>
+<td><code>4d6dl1</code></td>
+</tr>
+<tr>
+<td><code>!</code></td>
+<td>Exploding (reroll on max)</td>
+<td><code>1d6!</code></td>
+</tr>
+<tr>
+<td><code>rN</code></td>
+<td>Reroll dice equal to N</td>
+<td><code>2d6r1</code></td>
+</tr>
+<tr>
+<td><code>r&lt;N</code></td>
+<td>Reroll dice less than N</td>
+<td><code>2d6r&lt;3</code></td>
+</tr>
+<tr>
+<td><code>r&lt;=N</code></td>
+<td>Reroll dice &lt;= N</td>
+<td><code>2d6r&lt;=2</code></td>
+</tr>
+<tr>
+<td><code>r&gt;N</code></td>
+<td>Reroll dice greater than N</td>
+<td><code>2d6r&gt;5</code></td>
+</tr>
+<tr>
+<td><code>r&gt;=N</code></td>
+<td>Reroll dice &gt;= N</td>
+<td><code>2d6r&gt;=5</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Types</h2>
+<h3><code>RollResult</code></h3>
+<pre><code class="language-typescript">interface RollResult {
+  total: number
+  rolls: number[]
+  kept: number[]
+  notation: string
+  modifier: number
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>total</code></td>
+<td><code>number</code></td>
+<td>Final sum (kept dice + modifier)</td>
+</tr>
+<tr>
+<td><code>rolls</code></td>
+<td><code>number[]</code></td>
+<td>All individual die results</td>
+</tr>
+<tr>
+<td><code>kept</code></td>
+<td><code>number[]</code></td>
+<td>Dice that contributed to total</td>
+</tr>
+<tr>
+<td><code>notation</code></td>
+<td><code>string</code></td>
+<td>Original notation string</td>
+</tr>
+<tr>
+<td><code>modifier</code></td>
+<td><code>number</code></td>
+<td>Flat modifier from notation</td>
+</tr>
+</tbody></table>
+<h3><code>RollOptions</code></h3>
+<pre><code class="language-typescript">interface RollOptions {
+  context?: string
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>context</code></td>
+<td><code>string</code></td>
+<td>Optional context for roll history</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Related</h2>
+<ul>
+<li><strong><a href="concept-dice-notation.html">Dice Notation</a></strong> — Full notation guide</li>
+<li><strong><a href="guide-rolling-dice.html">Rolling Dice</a></strong> — Usage patterns and examples</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

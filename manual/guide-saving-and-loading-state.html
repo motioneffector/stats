@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saving and Loading State - @motioneffector/stats</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/stats</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/stats" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/stats" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/stats</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-character.html">Your First Character</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-stat-blocks.html">Stat Blocks</a></li>
+<li><a href="concept-dice-notation.html">Dice Notation</a></li>
+<li><a href="concept-modifiers.html">Modifiers</a></li>
+<li><a href="concept-checks-and-contests.html">Checks and Contests</a></li>
+<li><a href="concept-derived-stats.html">Derived Stats</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-rolling-dice.html">Rolling Dice</a></li>
+<li><a href="guide-working-with-modifiers.html">Working with Modifiers</a></li>
+<li><a href="guide-making-checks.html">Making Checks</a></li>
+<li><a href="guide-using-derived-stats.html">Using Derived Stats</a></li>
+<li><a href="guide-saving-and-loading-state.html">Saving and Loading State</a></li>
+<li><a href="guide-using-stat-templates.html">Using Stat Templates</a></li>
+<li><a href="guide-using-roll-tables.html">Using Roll Tables</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-dice.html">Dice API</a></li>
+<li><a href="api-stat-block.html">Stat Block API</a></li>
+<li><a href="api-checks.html">Checks API</a></li>
+<li><a href="api-utilities.html">Utilities API</a></li>
+<li><a href="api-types.html">Types</a></li>
+<li><a href="api-errors.html">Errors</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Saving and Loading State</h1>
+<p>Persist stat block state to JSON and restore it later. Save games, sync to a server, or store in a database.</p>
+<h2>Prerequisites</h2>
+<p>Before starting, you should:</p>
+<ul>
+<li><a href="your-first-character.html">Create a stat block</a></li>
+</ul>
+<h2>Overview</h2>
+<p>We&#39;ll cover:</p>
+<ol>
+<li>Serializing with toJSON()</li>
+<li>Storing the data</li>
+<li>Restoring with fromJSON</li>
+<li>Understanding what&#39;s included</li>
+</ol>
+<h2>Step 1: Serialize to JSON</h2>
+<p>Call <code>toJSON()</code> to get a serializable object:</p>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  strength: { base: 16 },
+  health: { base: 100, min: 0 }
+})
+
+hero.modify(&#39;health&#39;, -25)
+hero.addModifier(&#39;strength&#39;, { value: 2, source: &#39;belt&#39;, duration: 5 })
+
+const data = hero.toJSON()
+console.log(JSON.stringify(data, null, 2))
+</code></pre>
+<p>Output:</p>
+<pre><code class="language-json">{
+  &quot;version&quot;: 1,
+  &quot;stats&quot;: {
+    &quot;strength&quot;: 16,
+    &quot;health&quot;: 75
+  },
+  &quot;modifiers&quot;: {
+    &quot;strength&quot;: [
+      {
+        &quot;value&quot;: 2,
+        &quot;source&quot;: &quot;belt&quot;,
+        &quot;type&quot;: &quot;flat&quot;,
+        &quot;duration&quot;: 5
+      }
+    ]
+  }
+}
+</code></pre>
+<h2>Step 2: Store the Data</h2>
+<p>Store the JSON anywhere you&#39;d store data:</p>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  strength: { base: 16 },
+  health: { base: 100, min: 0 }
+})
+
+const data = hero.toJSON()
+
+// localStorage
+localStorage.setItem(&#39;hero&#39;, JSON.stringify(data))
+
+// File (Node.js)
+// fs.writeFileSync(&#39;save.json&#39;, JSON.stringify(data))
+
+// Send to server
+// await fetch(&#39;/api/save&#39;, { method: &#39;POST&#39;, body: JSON.stringify(data) })
+</code></pre>
+<h2>Step 3: Restore from JSON</h2>
+<p>Pass the saved data to <code>createStatBlock()</code> with the <code>fromJSON</code> option:</p>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+// Load the saved data
+const savedData = JSON.parse(localStorage.getItem(&#39;hero&#39;)!)
+
+// Create stat block with same definitions
+const hero = createStatBlock(
+  {
+    strength: { base: 16 },
+    health: { base: 100, min: 0 }
+  },
+  { fromJSON: savedData }
+)
+
+console.log(hero.get(&#39;health&#39;))    // 75 (restored)
+console.log(hero.get(&#39;strength&#39;))  // 18 (16 base + 2 modifier)
+</code></pre>
+<p>The definitions must match. The <code>fromJSON</code> data overrides base values and restores modifiers.</p>
+<h2>Step 4: Understand What&#39;s Saved</h2>
+<p><strong>Included:</strong></p>
+<ul>
+<li>Base values for all stats</li>
+<li>All modifiers (value, source, type, remaining duration)</li>
+<li>Version number for future migrations</li>
+</ul>
+<p><strong>Not included:</strong></p>
+<ul>
+<li>Derived stats (re-create them after loading)</li>
+<li>Event listeners (re-attach after loading)</li>
+<li>Roll history (starts fresh)</li>
+<li>Stat bounds (min/max) — these come from definitions</li>
+</ul>
+<h2>Complete Example</h2>
+<pre><code class="language-typescript">import { createStatBlock, createDerivedStat } from &#39;@motioneffector/stats&#39;
+
+// Factory function to create a hero with derived stats
+function createHero(savedData?: object) {
+  const hero = createStatBlock(
+    {
+      strength: { base: 10, min: 1, max: 20 },
+      health: { base: 100, min: 0 },
+      level: { base: 1 }
+    },
+    savedData ? { fromJSON: savedData as any } : undefined
+  )
+
+  // Re-create derived stats (not saved)
+  createDerivedStat(hero, &#39;carryCapacity&#39;, (s) =&gt; s.get(&#39;strength&#39;)! * 15)
+
+  return hero
+}
+
+// New game
+let hero = createHero()
+hero.set(&#39;strength&#39;, 16)
+hero.set(&#39;level&#39;, 5)
+hero.modify(&#39;health&#39;, -30)
+hero.addModifier(&#39;strength&#39;, { value: 2, source: &#39;belt&#39; })
+
+// Save
+const saveData = hero.toJSON()
+localStorage.setItem(&#39;save&#39;, JSON.stringify(saveData))
+
+// Load (later, or in a different session)
+const loadedData = JSON.parse(localStorage.getItem(&#39;save&#39;)!)
+hero = createHero(loadedData)
+
+console.log(hero.get(&#39;strength&#39;))      // 18
+console.log(hero.get(&#39;health&#39;))        // 70
+console.log(hero.get(&#39;level&#39;))         // 5
+console.log(hero.get(&#39;carryCapacity&#39;)) // 270
+</code></pre>
+<h2>Variations</h2>
+<h3>Saving Multiple Characters</h3>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const party = {
+  warrior: createStatBlock({ strength: { base: 16 } }),
+  mage: createStatBlock({ intelligence: { base: 18 } })
+}
+
+// Save all
+const saveData = {
+  warrior: party.warrior.toJSON(),
+  mage: party.mage.toJSON()
+}
+localStorage.setItem(&#39;party&#39;, JSON.stringify(saveData))
+
+// Load all
+const loaded = JSON.parse(localStorage.getItem(&#39;party&#39;)!)
+const loadedParty = {
+  warrior: createStatBlock({ strength: { base: 10 } }, { fromJSON: loaded.warrior }),
+  mage: createStatBlock({ intelligence: { base: 10 } }, { fromJSON: loaded.mage })
+}
+</code></pre>
+<h3>Handling Unknown Stats</h3>
+<p>If saved data contains stats not in your definitions, they&#39;re logged as warnings and ignored:</p>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+// Old save has &#39;luck&#39; stat, but we removed it
+const oldSave = {
+  version: 1,
+  stats: { strength: 16, luck: 10 },
+  modifiers: {}
+}
+
+const hero = createStatBlock(
+  { strength: { base: 10 } }, // No &#39;luck&#39; in definitions
+  { fromJSON: oldSave }
+)
+// Console warning: &quot;Unknown stat in JSON: luck&quot;
+
+console.log(hero.get(&#39;strength&#39;)) // 16
+console.log(hero.get(&#39;luck&#39;))     // undefined
+</code></pre>
+<h3>Version Checking</h3>
+<p>The saved data includes a version number for future migration support:</p>
+<pre><code class="language-typescript">const data = hero.toJSON()
+console.log(data.version) // 1
+
+// Future versions could check and migrate:
+// if (data.version &lt; 2) { migrateV1toV2(data) }
+</code></pre>
+<h2>Troubleshooting</h2>
+<h3>VersionError</h3>
+<p><strong>Symptom:</strong> <code>VersionError: Unsupported version</code></p>
+<p><strong>Cause:</strong> The saved data has a version number the library doesn&#39;t support.</p>
+<p><strong>Solution:</strong> This shouldn&#39;t happen with current versions. If you see this, the save file may be corrupted or from an incompatible version.</p>
+<h3>Stats Not Restoring</h3>
+<p><strong>Symptom:</strong> After loading, stats have wrong values.</p>
+<p><strong>Cause:</strong> The stat definitions don&#39;t match what was saved.</p>
+<p><strong>Solution:</strong> Ensure you use the same stat definitions when loading. The definitions provide bounds and structure; the saved data provides values.</p>
+<h2>See Also</h2>
+<ul>
+<li><strong><a href="concept-stat-blocks.html">Stat Blocks</a></strong> — Understanding base values and modifiers</li>
+<li><strong><a href="guide-using-derived-stats.html">Using Derived Stats</a></strong> — Re-creating derived stats after load</li>
+<li><strong><a href="api-stat-block.html">Stat Block API</a></strong> — <code>toJSON</code> method reference</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Using Derived Stats - @motioneffector/stats</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/stats</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/stats" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/stats" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/stats</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-character.html">Your First Character</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-stat-blocks.html">Stat Blocks</a></li>
+<li><a href="concept-dice-notation.html">Dice Notation</a></li>
+<li><a href="concept-modifiers.html">Modifiers</a></li>
+<li><a href="concept-checks-and-contests.html">Checks and Contests</a></li>
+<li><a href="concept-derived-stats.html">Derived Stats</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-rolling-dice.html">Rolling Dice</a></li>
+<li><a href="guide-working-with-modifiers.html">Working with Modifiers</a></li>
+<li><a href="guide-making-checks.html">Making Checks</a></li>
+<li><a href="guide-using-derived-stats.html">Using Derived Stats</a></li>
+<li><a href="guide-saving-and-loading-state.html">Saving and Loading State</a></li>
+<li><a href="guide-using-stat-templates.html">Using Stat Templates</a></li>
+<li><a href="guide-using-roll-tables.html">Using Roll Tables</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-dice.html">Dice API</a></li>
+<li><a href="api-stat-block.html">Stat Block API</a></li>
+<li><a href="api-checks.html">Checks API</a></li>
+<li><a href="api-utilities.html">Utilities API</a></li>
+<li><a href="api-types.html">Types</a></li>
+<li><a href="api-errors.html">Errors</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Using Derived Stats</h1>
+<p>Create stats that automatically calculate from other stats. When dependencies change, derived stats update automatically.</p>
+<h2>Prerequisites</h2>
+<p>Before starting, you should:</p>
+<ul>
+<li><a href="your-first-character.html">Create a stat block</a></li>
+<li>Understand <a href="concept-derived-stats.html">derived stats concepts</a></li>
+</ul>
+<h2>Overview</h2>
+<p>We&#39;ll cover:</p>
+<ol>
+<li>Creating a derived stat</li>
+<li>Using multiple dependencies</li>
+<li>Listening for changes</li>
+<li>Handling serialization</li>
+</ol>
+<h2>Step 1: Create a Derived Stat</h2>
+<p>Use <code>createDerivedStat()</code> with a formula function:</p>
+<pre><code class="language-typescript">import { createStatBlock, createDerivedStat } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  strength: { base: 16 }
+})
+
+createDerivedStat(hero, &#39;carryCapacity&#39;, (stats) =&gt; {
+  return stats.get(&#39;strength&#39;)! * 15
+})
+
+console.log(hero.get(&#39;carryCapacity&#39;)) // 240
+</code></pre>
+<p>The formula receives the stat block and can read any stats.</p>
+<h2>Step 2: Watch It Auto-Update</h2>
+<p>When you change a dependency, the derived stat recalculates:</p>
+<pre><code class="language-typescript">import { createStatBlock, createDerivedStat } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  strength: { base: 16 }
+})
+
+createDerivedStat(hero, &#39;carryCapacity&#39;, (stats) =&gt; {
+  return stats.get(&#39;strength&#39;)! * 15
+})
+
+console.log(hero.get(&#39;carryCapacity&#39;)) // 240
+
+hero.set(&#39;strength&#39;, 18)
+console.log(hero.get(&#39;carryCapacity&#39;)) // 270
+
+hero.addModifier(&#39;strength&#39;, { value: 4, source: &#39;belt-of-giant-strength&#39; })
+console.log(hero.get(&#39;carryCapacity&#39;)) // 330 (22 × 15)
+</code></pre>
+<h2>Step 3: Use Multiple Dependencies</h2>
+<p>A derived stat can depend on multiple source stats:</p>
+<pre><code class="language-typescript">import { createStatBlock, createDerivedStat } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  dexterity: { base: 14 },
+  armorBonus: { base: 2 },
+  shieldBonus: { base: 0 }
+})
+
+createDerivedStat(hero, &#39;armorClass&#39;, (stats) =&gt; {
+  const dexMod = Math.floor((stats.get(&#39;dexterity&#39;)! - 10) / 2)
+  return 10 + dexMod + stats.get(&#39;armorBonus&#39;)! + stats.get(&#39;shieldBonus&#39;)!
+})
+
+console.log(hero.get(&#39;armorClass&#39;)) // 14 (10 + 2 + 2 + 0)
+
+// Equip a shield
+hero.set(&#39;shieldBonus&#39;, 2)
+console.log(hero.get(&#39;armorClass&#39;)) // 16
+
+// Increase dexterity
+hero.set(&#39;dexterity&#39;, 16)
+console.log(hero.get(&#39;armorClass&#39;)) // 17
+</code></pre>
+<h2>Step 4: Listen for Changes</h2>
+<p>Subscribe to derived stat changes with <code>onStat()</code>:</p>
+<pre><code class="language-typescript">import { createStatBlock, createDerivedStat } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  strength: { base: 16 }
+})
+
+createDerivedStat(hero, &#39;carryCapacity&#39;, (stats) =&gt; {
+  return stats.get(&#39;strength&#39;)! * 15
+})
+
+hero.onStat(&#39;carryCapacity&#39;, (event) =&gt; {
+  console.log(`Carry capacity: ${event.oldValue} → ${event.newValue}`)
+})
+
+hero.set(&#39;strength&#39;, 18)
+// Logs: &quot;Carry capacity: 240 → 270&quot;
+</code></pre>
+<p>Or use <code>onChange()</code> to catch all stat changes:</p>
+<pre><code class="language-typescript">hero.onChange((event) =&gt; {
+  console.log(`${event.stat} changed to ${event.newValue}`)
+})
+</code></pre>
+<h2>Step 5: Handle Serialization</h2>
+<p>Derived stats are <strong>not</strong> included in <code>toJSON()</code>. Re-create them after loading:</p>
+<pre><code class="language-typescript">import { createStatBlock, createDerivedStat } from &#39;@motioneffector/stats&#39;
+
+function createHero(savedData?: object) {
+  const hero = createStatBlock(
+    { strength: { base: 16 } },
+    savedData ? { fromJSON: savedData as any } : undefined
+  )
+
+  // Always re-create derived stats
+  createDerivedStat(hero, &#39;carryCapacity&#39;, (stats) =&gt; {
+    return stats.get(&#39;strength&#39;)! * 15
+  })
+
+  return hero
+}
+
+// Save
+const hero = createHero()
+const saved = hero.toJSON()
+
+// Load
+const loadedHero = createHero(saved)
+console.log(loadedHero.get(&#39;carryCapacity&#39;)) // Works!
+</code></pre>
+<h2>Complete Example</h2>
+<pre><code class="language-typescript">import { createStatBlock, createDerivedStat } from &#39;@motioneffector/stats&#39;
+
+const wizard = createStatBlock({
+  intelligence: { base: 18 },
+  proficiencyBonus: { base: 3 },
+  level: { base: 5 }
+})
+
+// Spell save DC = 8 + proficiency + INT mod
+createDerivedStat(wizard, &#39;spellSaveDC&#39;, (stats) =&gt; {
+  const intMod = Math.floor((stats.get(&#39;intelligence&#39;)! - 10) / 2)
+  return 8 + stats.get(&#39;proficiencyBonus&#39;)! + intMod
+})
+
+// Spell attack bonus = proficiency + INT mod
+createDerivedStat(wizard, &#39;spellAttackBonus&#39;, (stats) =&gt; {
+  const intMod = Math.floor((stats.get(&#39;intelligence&#39;)! - 10) / 2)
+  return stats.get(&#39;proficiencyBonus&#39;)! + intMod
+})
+
+// Prepared spells = INT mod + level
+createDerivedStat(wizard, &#39;preparedSpells&#39;, (stats) =&gt; {
+  const intMod = Math.floor((stats.get(&#39;intelligence&#39;)! - 10) / 2)
+  return intMod + stats.get(&#39;level&#39;)!
+})
+
+console.log(`Spell Save DC: ${wizard.get(&#39;spellSaveDC&#39;)}`)       // 15
+console.log(`Spell Attack: +${wizard.get(&#39;spellAttackBonus&#39;)}`)  // +7
+console.log(`Prepared Spells: ${wizard.get(&#39;preparedSpells&#39;)}`)  // 9
+
+// Level up!
+wizard.set(&#39;level&#39;, 6)
+wizard.set(&#39;proficiencyBonus&#39;, 3) // Still 3 at level 6
+
+console.log(`Prepared Spells: ${wizard.get(&#39;preparedSpells&#39;)}`)  // 10
+</code></pre>
+<h2>Variations</h2>
+<h3>Derived Stat with Modifiers</h3>
+<p>Derived stats can read stats that have modifiers:</p>
+<pre><code class="language-typescript">import { createStatBlock, createDerivedStat } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  strength: { base: 14 }
+})
+
+createDerivedStat(hero, &#39;carryCapacity&#39;, (stats) =&gt; {
+  return stats.get(&#39;strength&#39;)! * 15 // Uses effective value
+})
+
+hero.addModifier(&#39;strength&#39;, { value: 4, source: &#39;enlarge&#39; })
+console.log(hero.get(&#39;carryCapacity&#39;)) // 270 (18 × 15)
+</code></pre>
+<h3>Conditional Logic</h3>
+<pre><code class="language-typescript">import { createStatBlock, createDerivedStat } from &#39;@motioneffector/stats&#39;
+
+const character = createStatBlock({
+  dexterity: { base: 16 },
+  armorType: { base: 0 } // 0=none, 1=light, 2=medium, 3=heavy
+})
+
+createDerivedStat(character, &#39;maxDexBonus&#39;, (stats) =&gt; {
+  const armorType = stats.get(&#39;armorType&#39;)!
+  if (armorType === 0) return Infinity
+  if (armorType === 1) return Infinity // Light armor
+  if (armorType === 2) return 2        // Medium armor
+  return 0                              // Heavy armor
+})
+</code></pre>
+<h2>Troubleshooting</h2>
+<h3>CircularDependencyError</h3>
+<p><strong>Symptom:</strong> <code>CircularDependencyError: Circular dependency detected</code></p>
+<p><strong>Cause:</strong> A derived stat depends on itself, or two derived stats depend on each other.</p>
+<p><strong>Solution:</strong> Redesign your formulas. Derived stats can only depend on base stats or derived stats that don&#39;t create a cycle.</p>
+<h3>Derived Stat Returns Undefined</h3>
+<p><strong>Symptom:</strong> <code>get()</code> returns <code>undefined</code> or the formula throws.</p>
+<p><strong>Cause:</strong> The formula is accessing a stat that doesn&#39;t exist.</p>
+<p><strong>Solution:</strong> Check stat names. Use <code>stats.has(&#39;name&#39;)</code> to verify stats exist.</p>
+<h2>See Also</h2>
+<ul>
+<li><strong><a href="concept-derived-stats.html">Derived Stats</a></strong> — Conceptual overview</li>
+<li><strong><a href="guide-saving-and-loading-state.html">Saving and Loading State</a></strong> — Handling serialization</li>
+<li><strong><a href="api-checks.html">Checks API</a></strong> — <code>createDerivedStat</code> reference</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

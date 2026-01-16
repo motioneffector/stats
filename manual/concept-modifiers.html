@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modifiers - @motioneffector/stats</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/stats</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/stats" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/stats" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/stats</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-character.html">Your First Character</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-stat-blocks.html">Stat Blocks</a></li>
+<li><a href="concept-dice-notation.html">Dice Notation</a></li>
+<li><a href="concept-modifiers.html">Modifiers</a></li>
+<li><a href="concept-checks-and-contests.html">Checks and Contests</a></li>
+<li><a href="concept-derived-stats.html">Derived Stats</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-rolling-dice.html">Rolling Dice</a></li>
+<li><a href="guide-working-with-modifiers.html">Working with Modifiers</a></li>
+<li><a href="guide-making-checks.html">Making Checks</a></li>
+<li><a href="guide-using-derived-stats.html">Using Derived Stats</a></li>
+<li><a href="guide-saving-and-loading-state.html">Saving and Loading State</a></li>
+<li><a href="guide-using-stat-templates.html">Using Stat Templates</a></li>
+<li><a href="guide-using-roll-tables.html">Using Roll Tables</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-dice.html">Dice API</a></li>
+<li><a href="api-stat-block.html">Stat Block API</a></li>
+<li><a href="api-checks.html">Checks API</a></li>
+<li><a href="api-utilities.html">Utilities API</a></li>
+<li><a href="api-types.html">Types</a></li>
+<li><a href="api-errors.html">Errors</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Modifiers</h1>
+<p>Modifiers are bonuses or penalties applied to stats on top of the base value. A strength buff, a poison debuff, or an equipment bonus—these are all modifiers. They stack, can expire over time, and are tracked separately from the base stat.</p>
+<h2>How It Works</h2>
+<p>Each modifier has:</p>
+<ul>
+<li><strong>value</strong>: The numeric bonus or penalty</li>
+<li><strong>source</strong>: A unique name identifying where it came from (used to remove it later)</li>
+<li><strong>type</strong>: Either <code>&#39;flat&#39;</code> (add to value) or <code>&#39;multiply&#39;</code> (scale the value)</li>
+<li><strong>duration</strong>: How long it lasts—<code>&#39;permanent&#39;</code>, <code>&#39;temporary&#39;</code> (1 tick), or a number of ticks</li>
+</ul>
+<p>When you call <code>get()</code> on a stat, the effective value is calculated:</p>
+<pre><code>Effective = (Base + Flat Modifiers) × Multiply Modifiers
+</code></pre>
+<p>Flat modifiers are summed first, then multiply modifiers are applied in order.</p>
+<h2>Basic Usage</h2>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  strength: { base: 14, min: 1, max: 20 }
+})
+
+// Add a +2 buff from a spell
+hero.addModifier(&#39;strength&#39;, {
+  value: 2,
+  source: &#39;bull-strength-spell&#39;
+})
+
+hero.get(&#39;strength&#39;) // 16 (14 base + 2 modifier)
+
+// Remove the buff
+hero.removeModifier(&#39;strength&#39;, &#39;bull-strength-spell&#39;)
+
+hero.get(&#39;strength&#39;) // 14
+</code></pre>
+<p>The <code>source</code> string identifies the modifier. Use descriptive names like <code>&#39;giant-belt&#39;</code> or <code>&#39;rage-bonus&#39;</code>.</p>
+<h2>Key Points</h2>
+<ul>
+<li><strong>Source names must be unique per stat</strong> — Adding a modifier with an existing source replaces it.</li>
+<li><strong>Flat modifiers add, multiply modifiers scale</strong> — A <code>multiply</code> modifier of 1.5 increases the stat by 50%.</li>
+<li><strong>Modifiers can push past bounds</strong> — A stat with max 20 and a +5 modifier can have an effective value of 25.</li>
+<li><strong>Use <code>tick()</code> to expire timed modifiers</strong> — Each call decrements duration counters and removes expired modifiers.</li>
+</ul>
+<h2>Duration Types</h2>
+<h3>Permanent</h3>
+<p>Lasts until explicitly removed:</p>
+<pre><code class="language-typescript">hero.addModifier(&#39;strength&#39;, {
+  value: 2,
+  source: &#39;magic-belt&#39;,
+  duration: &#39;permanent&#39;
+})
+// Stays until hero.removeModifier(&#39;strength&#39;, &#39;magic-belt&#39;)
+</code></pre>
+<h3>Temporary</h3>
+<p>Expires after one <code>tick()</code> call:</p>
+<pre><code class="language-typescript">hero.addModifier(&#39;strength&#39;, {
+  value: 4,
+  source: &#39;rage&#39;,
+  duration: &#39;temporary&#39;
+})
+
+hero.get(&#39;strength&#39;) // 18
+hero.tick()
+hero.get(&#39;strength&#39;) // 14 (rage expired)
+</code></pre>
+<h3>Numeric Duration</h3>
+<p>Expires after N <code>tick()</code> calls:</p>
+<pre><code class="language-typescript">hero.addModifier(&#39;strength&#39;, {
+  value: 2,
+  source: &#39;potion&#39;,
+  duration: 3
+})
+
+hero.tick() // 2 ticks remaining
+hero.tick() // 1 tick remaining
+hero.tick() // Expires
+</code></pre>
+<h2>Modifier Types</h2>
+<h3>Flat Modifiers (default)</h3>
+<p>Add or subtract from the base:</p>
+<pre><code class="language-typescript">hero.addModifier(&#39;strength&#39;, {
+  value: -4,
+  source: &#39;poison&#39;,
+  type: &#39;flat&#39;
+})
+</code></pre>
+<h3>Multiply Modifiers</h3>
+<p>Scale the total after flat modifiers:</p>
+<pre><code class="language-typescript">hero.addModifier(&#39;damage&#39;, {
+  value: 2,
+  source: &#39;critical-hit&#39;,
+  type: &#39;multiply&#39;
+})
+// If base + flat modifiers = 10, effective = 20
+</code></pre>
+<h2>Examples</h2>
+<h3>Equipment Bonus</h3>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  armor: { base: 10 }
+})
+
+// Equip a shield
+hero.addModifier(&#39;armor&#39;, {
+  value: 2,
+  source: &#39;shield&#39;
+})
+
+// Equip magic armor
+hero.addModifier(&#39;armor&#39;, {
+  value: 3,
+  source: &#39;chainmail&#39;
+})
+
+hero.get(&#39;armor&#39;) // 15 (10 + 2 + 3)
+
+// Unequip shield
+hero.removeModifier(&#39;armor&#39;, &#39;shield&#39;)
+hero.get(&#39;armor&#39;) // 13
+</code></pre>
+<h3>Buff That Lasts 3 Rounds</h3>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const hero = createStatBlock({
+  speed: { base: 30 }
+})
+
+hero.addModifier(&#39;speed&#39;, {
+  value: 10,
+  source: &#39;haste&#39;,
+  duration: 3
+})
+
+hero.get(&#39;speed&#39;) // 40
+
+// Simulate 3 rounds
+hero.tick() // Round 1 ends
+hero.tick() // Round 2 ends
+hero.tick() // Round 3 ends, haste expires
+
+hero.get(&#39;speed&#39;) // 30
+</code></pre>
+<h3>Percentage Damage Increase</h3>
+<pre><code class="language-typescript">import { createStatBlock } from &#39;@motioneffector/stats&#39;
+
+const stats = createStatBlock({
+  damage: { base: 20 }
+})
+
+stats.addModifier(&#39;damage&#39;, {
+  value: 1.5,
+  source: &#39;berserker-rage&#39;,
+  type: &#39;multiply&#39;
+})
+
+stats.get(&#39;damage&#39;) // 30 (20 × 1.5)
+</code></pre>
+<h2>Related</h2>
+<ul>
+<li><strong><a href="concept-stat-blocks.html">Stat Blocks</a></strong> — The container that holds stats and modifiers</li>
+<li><strong><a href="guide-working-with-modifiers.html">Working with Modifiers</a></strong> — Step-by-step guide</li>
+<li><strong><a href="api-stat-block.html">Stat Block API</a></strong> — Full method reference for <code>addModifier</code>, <code>removeModifier</code>, etc.</li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

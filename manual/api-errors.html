@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Errors - @motioneffector/stats</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/stats</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/stats" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/stats" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/stats</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-character.html">Your First Character</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-stat-blocks.html">Stat Blocks</a></li>
+<li><a href="concept-dice-notation.html">Dice Notation</a></li>
+<li><a href="concept-modifiers.html">Modifiers</a></li>
+<li><a href="concept-checks-and-contests.html">Checks and Contests</a></li>
+<li><a href="concept-derived-stats.html">Derived Stats</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-rolling-dice.html">Rolling Dice</a></li>
+<li><a href="guide-working-with-modifiers.html">Working with Modifiers</a></li>
+<li><a href="guide-making-checks.html">Making Checks</a></li>
+<li><a href="guide-using-derived-stats.html">Using Derived Stats</a></li>
+<li><a href="guide-saving-and-loading-state.html">Saving and Loading State</a></li>
+<li><a href="guide-using-stat-templates.html">Using Stat Templates</a></li>
+<li><a href="guide-using-roll-tables.html">Using Roll Tables</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-dice.html">Dice API</a></li>
+<li><a href="api-stat-block.html">Stat Block API</a></li>
+<li><a href="api-checks.html">Checks API</a></li>
+<li><a href="api-utilities.html">Utilities API</a></li>
+<li><a href="api-types.html">Types</a></li>
+<li><a href="api-errors.html">Errors</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Errors</h1>
+<p>Error classes thrown by the library.</p>
+<hr>
+<h2><code>StatsError</code></h2>
+<p>Base class for all library errors.</p>
+<pre><code class="language-typescript">class StatsError extends Error {
+  name: &#39;StatsError&#39;
+}
+</code></pre>
+<p>All other errors extend this class.</p>
+<hr>
+<h2><code>ParseError</code></h2>
+<p>Thrown when dice notation cannot be parsed.</p>
+<pre><code class="language-typescript">class ParseError extends StatsError {
+  name: &#39;ParseError&#39;
+  notation?: string
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>notation</code></td>
+<td><code>string</code></td>
+<td>The invalid notation string</td>
+</tr>
+</tbody></table>
+<p><strong>Thrown by:</strong></p>
+<ul>
+<li><code>roll()</code> — When notation is invalid</li>
+</ul>
+<p><strong>Common causes:</strong></p>
+<ul>
+<li>Invalid syntax: <code>&quot;2d&quot;</code>, <code>&quot;d&quot;</code>, <code>&quot;abc&quot;</code></li>
+<li>Negative dice: <code>&quot;-2d6&quot;</code>, <code>&quot;2d-6&quot;</code></li>
+<li>Zero dice: <code>&quot;0d6&quot;</code></li>
+<li>Incomplete modifier: <code>&quot;2d6+&quot;</code></li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">import { roll, ParseError } from &#39;@motioneffector/stats&#39;
+
+try {
+  roll(&#39;invalid&#39;)
+} catch (error) {
+  if (error instanceof ParseError) {
+    console.log(`Invalid notation: ${error.notation}`)
+  }
+}
+</code></pre>
+<hr>
+<h2><code>ValidationError</code></h2>
+<p>Thrown when input validation fails.</p>
+<pre><code class="language-typescript">class ValidationError extends StatsError {
+  name: &#39;ValidationError&#39;
+  field?: string
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>field</code></td>
+<td><code>string</code></td>
+<td>The field that failed validation</td>
+</tr>
+</tbody></table>
+<p><strong>Thrown by:</strong></p>
+<ul>
+<li><code>createStatBlock()</code> — When min &gt; max</li>
+<li><code>rollTable()</code> — When table is empty or has invalid weights</li>
+</ul>
+<p><strong>Common causes:</strong></p>
+<ul>
+<li>Stat definition has <code>min</code> greater than <code>max</code></li>
+<li>Roll table is empty</li>
+<li>Roll table has negative weights</li>
+<li>Roll table has all zero weights</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">import { createStatBlock, ValidationError } from &#39;@motioneffector/stats&#39;
+
+try {
+  createStatBlock({
+    health: { base: 50, min: 100, max: 10 } // min &gt; max
+  })
+} catch (error) {
+  if (error instanceof ValidationError) {
+    console.log(`Validation failed for: ${error.field}`)
+  }
+}
+</code></pre>
+<hr>
+<h2><code>CircularDependencyError</code></h2>
+<p>Thrown when derived stats create a circular dependency.</p>
+<pre><code class="language-typescript">class CircularDependencyError extends StatsError {
+  name: &#39;CircularDependencyError&#39;
+  cycle?: string[]
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>cycle</code></td>
+<td><code>string[]</code></td>
+<td>The stats involved in the cycle</td>
+</tr>
+</tbody></table>
+<p><strong>Thrown by:</strong></p>
+<ul>
+<li><code>createDerivedStat()</code> — When formula creates a cycle</li>
+</ul>
+<p><strong>Common causes:</strong></p>
+<ul>
+<li>Derived stat references itself</li>
+<li>Two derived stats reference each other</li>
+<li>Chain of derived stats forms a loop</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">import { createStatBlock, createDerivedStat, CircularDependencyError } from &#39;@motioneffector/stats&#39;
+
+const stats = createStatBlock({ a: { base: 10 } })
+
+try {
+  // This creates a circular dependency
+  createDerivedStat(stats, &#39;b&#39;, (s) =&gt; s.get(&#39;b&#39;)! + 1)
+} catch (error) {
+  if (error instanceof CircularDependencyError) {
+    console.log(`Cycle detected: ${error.cycle?.join(&#39; → &#39;)}`)
+  }
+}
+</code></pre>
+<hr>
+<h2><code>VersionError</code></h2>
+<p>Thrown when loading serialized data with an unsupported version.</p>
+<pre><code class="language-typescript">class VersionError extends StatsError {
+  name: &#39;VersionError&#39;
+  version?: number
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>version</code></td>
+<td><code>number</code></td>
+<td>The unsupported version number</td>
+</tr>
+</tbody></table>
+<p><strong>Thrown by:</strong></p>
+<ul>
+<li><code>createStatBlock()</code> with <code>fromJSON</code> — When version is unsupported</li>
+</ul>
+<p><strong>Common causes:</strong></p>
+<ul>
+<li>Loading data from a future library version</li>
+<li>Corrupted save data</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-typescript">import { createStatBlock, VersionError } from &#39;@motioneffector/stats&#39;
+
+try {
+  createStatBlock(
+    { health: { base: 100 } },
+    { fromJSON: { version: 999, stats: {}, modifiers: {} } }
+  )
+} catch (error) {
+  if (error instanceof VersionError) {
+    console.log(`Unsupported version: ${error.version}`)
+  }
+}
+</code></pre>
+<hr>
+<h2>Error Handling Pattern</h2>
+<pre><code class="language-typescript">import {
+  roll,
+  createStatBlock,
+  createDerivedStat,
+  ParseError,
+  ValidationError,
+  CircularDependencyError,
+  VersionError,
+  StatsError
+} from &#39;@motioneffector/stats&#39;
+
+try {
+  // Your code here
+} catch (error) {
+  if (error instanceof ParseError) {
+    // Handle invalid dice notation
+  } else if (error instanceof ValidationError) {
+    // Handle validation failures
+  } else if (error instanceof CircularDependencyError) {
+    // Handle circular dependencies
+  } else if (error instanceof VersionError) {
+    // Handle version mismatch
+  } else if (error instanceof StatsError) {
+    // Handle any other library error
+  } else {
+    // Re-throw unknown errors
+    throw error
+  }
+}
+</code></pre>
+<hr>
+<h2>Related</h2>
+<ul>
+<li><strong><a href="api-dice.html">Dice API</a></strong> — Functions that throw <code>ParseError</code></li>
+<li><strong><a href="api-stat-block.html">Stat Block API</a></strong> — Functions that throw <code>ValidationError</code></li>
+<li><strong><a href="api-checks.html">Checks API</a></strong> — Functions that throw <code>CircularDependencyError</code></li>
+</ul>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

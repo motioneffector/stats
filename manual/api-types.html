@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Types - @motioneffector/stats</title>
+  <link rel="stylesheet" href="../demo-files/demo.css">
+  <link rel="stylesheet" href="manual.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="header-title">@motioneffector/stats</h1>
+      <p class="header-description">Documentation</p>
+      <nav class="header-links">
+        <a href="../index.html" class="header-link">Demo</a>
+        <a href="https://www.npmjs.com/package/@motioneffector/stats" class="header-link">npm</a>
+        <a href="https://github.com/motioneffector/stats" class="header-link">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="manual-layout">
+      <aside class="manual-sidebar">
+        <nav class="sidebar-nav">
+<p><strong><a href="index.html">@motioneffector/stats</a></strong></p>
+<p><strong>Getting Started</strong></p>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="your-first-character.html">Your First Character</a></li>
+</ul>
+<p><strong>Core Concepts</strong></p>
+<ul>
+<li><a href="concept-stat-blocks.html">Stat Blocks</a></li>
+<li><a href="concept-dice-notation.html">Dice Notation</a></li>
+<li><a href="concept-modifiers.html">Modifiers</a></li>
+<li><a href="concept-checks-and-contests.html">Checks and Contests</a></li>
+<li><a href="concept-derived-stats.html">Derived Stats</a></li>
+</ul>
+<p><strong>Guides</strong></p>
+<ul>
+<li><a href="guide-rolling-dice.html">Rolling Dice</a></li>
+<li><a href="guide-working-with-modifiers.html">Working with Modifiers</a></li>
+<li><a href="guide-making-checks.html">Making Checks</a></li>
+<li><a href="guide-using-derived-stats.html">Using Derived Stats</a></li>
+<li><a href="guide-saving-and-loading-state.html">Saving and Loading State</a></li>
+<li><a href="guide-using-stat-templates.html">Using Stat Templates</a></li>
+<li><a href="guide-using-roll-tables.html">Using Roll Tables</a></li>
+</ul>
+<p><strong>API Reference</strong></p>
+<ul>
+<li><a href="api-dice.html">Dice API</a></li>
+<li><a href="api-stat-block.html">Stat Block API</a></li>
+<li><a href="api-checks.html">Checks API</a></li>
+<li><a href="api-utilities.html">Utilities API</a></li>
+<li><a href="api-types.html">Types</a></li>
+<li><a href="api-errors.html">Errors</a></li>
+</ul>
+
+        </nav>
+      </aside>
+
+      <main class="manual-content">
+        <article class="manual-article">
+<h1>Types</h1>
+<p>TypeScript type definitions exported by the library.</p>
+<hr>
+<h2>Dice Types</h2>
+<h3><code>RollResult</code></h3>
+<p>Result from a dice roll.</p>
+<pre><code class="language-typescript">interface RollResult {
+  total: number
+  rolls: number[]
+  kept: number[]
+  notation: string
+  modifier: number
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>total</code></td>
+<td><code>number</code></td>
+<td>Final sum (kept dice + modifier)</td>
+</tr>
+<tr>
+<td><code>rolls</code></td>
+<td><code>number[]</code></td>
+<td>All individual die results</td>
+</tr>
+<tr>
+<td><code>kept</code></td>
+<td><code>number[]</code></td>
+<td>Dice that contributed to total</td>
+</tr>
+<tr>
+<td><code>notation</code></td>
+<td><code>string</code></td>
+<td>Original notation string</td>
+</tr>
+<tr>
+<td><code>modifier</code></td>
+<td><code>number</code></td>
+<td>Flat modifier from notation</td>
+</tr>
+</tbody></table>
+<h3><code>RollOptions</code></h3>
+<p>Options for dice rolling.</p>
+<pre><code class="language-typescript">interface RollOptions {
+  context?: string
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>context</code></td>
+<td><code>string</code></td>
+<td>Optional context for roll history</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Stat Block Types</h2>
+<h3><code>StatDefinition</code></h3>
+<p>Definition for a single stat.</p>
+<pre><code class="language-typescript">interface StatDefinition {
+  base: number
+  min?: number
+  max?: number
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>base</code></td>
+<td><code>number</code></td>
+<td>Initial value</td>
+</tr>
+<tr>
+<td><code>min</code></td>
+<td><code>number</code></td>
+<td>Minimum allowed value</td>
+</tr>
+<tr>
+<td><code>max</code></td>
+<td><code>number</code></td>
+<td>Maximum allowed value</td>
+</tr>
+</tbody></table>
+<h3><code>StatDefinitions</code></h3>
+<p>Map of stat names to definitions.</p>
+<pre><code class="language-typescript">type StatDefinitions = Record&lt;string, StatDefinition&gt;
+</code></pre>
+<h3><code>StatBlock</code></h3>
+<p>Interface for stat block instances.</p>
+<pre><code class="language-typescript">interface StatBlock {
+  get(statName: string): number | undefined
+  getBase(statName: string): number | undefined
+  set(statName: string, value: number): number
+  modify(statName: string, delta: number): number
+  has(statName: string): boolean
+  stats(): string[]
+  addModifier(statName: string, modifier: Modifier): Modifier
+  removeModifier(statName: string, source: string): boolean
+  getModifiers(statName: string): ModifierInfo[] | undefined
+  clearModifiers(statName?: string): number
+  getRemainingDuration(statName: string, source: string): number | undefined
+  tick(): string[]
+  getRollHistory(limit?: number): HistoryEntry[]
+  clearRollHistory(): void
+  onChange(callback: (event: StatChangeEvent) =&gt; void): () =&gt; void
+  onStat(statName: string, callback: (event: StatChangeEvent) =&gt; void): () =&gt; void
+  isDerived(name: string): boolean
+  toJSON(): SerializedStatBlock
+  dispose(): void
+}
+</code></pre>
+<h3><code>StatBlockOptions</code></h3>
+<p>Options for creating stat blocks.</p>
+<pre><code class="language-typescript">interface StatBlockOptions {
+  historyLimit?: number
+  modifierFormula?: (value: number) =&gt; number
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>historyLimit</code></td>
+<td><code>number</code></td>
+<td>Max roll history entries. Default: <code>100</code></td>
+</tr>
+<tr>
+<td><code>modifierFormula</code></td>
+<td><code>function</code></td>
+<td>Custom modifier calculation</td>
+</tr>
+</tbody></table>
+<h3><code>SerializedStatBlock</code></h3>
+<p>Serialized stat block for persistence.</p>
+<pre><code class="language-typescript">interface SerializedStatBlock {
+  version: 1
+  stats: Record&lt;string, number&gt;
+  modifiers: Record&lt;string, Array&lt;{
+    value: number
+    source: string
+    type: &#39;flat&#39; | &#39;multiply&#39;
+    duration: &#39;permanent&#39; | number
+  }&gt;&gt;
+}
+</code></pre>
+<hr>
+<h2>Modifier Types</h2>
+<h3><code>Modifier</code></h3>
+<p>Input for adding a modifier.</p>
+<pre><code class="language-typescript">interface Modifier {
+  value: number
+  source: string
+  type?: &#39;flat&#39; | &#39;multiply&#39;
+  duration?: &#39;permanent&#39; | &#39;temporary&#39; | number
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>value</code></td>
+<td><code>number</code></td>
+<td>Modifier value</td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td><code>string</code></td>
+<td>Unique identifier</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td><code>&#39;flat&#39; | &#39;multiply&#39;</code></td>
+<td>How to apply. Default: <code>&#39;flat&#39;</code></td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td><code>&#39;permanent&#39; | &#39;temporary&#39; | number</code></td>
+<td>How long it lasts</td>
+</tr>
+</tbody></table>
+<h3><code>ModifierInfo</code></h3>
+<p>Information about an active modifier.</p>
+<pre><code class="language-typescript">interface ModifierInfo {
+  value: number
+  source: string
+  type: &#39;flat&#39; | &#39;multiply&#39;
+  duration: &#39;permanent&#39; | number
+}
+</code></pre>
+<hr>
+<h2>Event Types</h2>
+<h3><code>StatChangeEvent</code></h3>
+<p>Event fired when a stat changes.</p>
+<pre><code class="language-typescript">interface StatChangeEvent {
+  stat: string
+  newValue: number
+  oldValue: number
+  baseChanged: boolean
+  modifiersChanged: boolean
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>stat</code></td>
+<td><code>string</code></td>
+<td>Name of the changed stat</td>
+</tr>
+<tr>
+<td><code>newValue</code></td>
+<td><code>number</code></td>
+<td>New effective value</td>
+</tr>
+<tr>
+<td><code>oldValue</code></td>
+<td><code>number</code></td>
+<td>Previous effective value</td>
+</tr>
+<tr>
+<td><code>baseChanged</code></td>
+<td><code>boolean</code></td>
+<td>Whether base value changed</td>
+</tr>
+<tr>
+<td><code>modifiersChanged</code></td>
+<td><code>boolean</code></td>
+<td>Whether modifiers changed</td>
+</tr>
+</tbody></table>
+<h3><code>HistoryEntry</code></h3>
+<p>Entry in roll history.</p>
+<pre><code class="language-typescript">interface HistoryEntry {
+  notation: string
+  result: number
+  rolls: number[]
+  timestamp: number
+  stat?: string
+  context?: string
+}
+</code></pre>
+<hr>
+<h2>Check Types</h2>
+<h3><code>CheckOptions</code></h3>
+<p>Options for skill checks.</p>
+<pre><code class="language-typescript">interface CheckOptions {
+  difficulty: number
+  dice?: string
+  advantage?: boolean
+  disadvantage?: boolean
+  bonus?: number
+  modifier?: number
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>difficulty</code></td>
+<td><code>number</code></td>
+<td>Target DC</td>
+</tr>
+<tr>
+<td><code>dice</code></td>
+<td><code>string</code></td>
+<td>Dice notation. Default: <code>&#39;1d20&#39;</code></td>
+</tr>
+<tr>
+<td><code>advantage</code></td>
+<td><code>boolean</code></td>
+<td>Roll twice, take higher</td>
+</tr>
+<tr>
+<td><code>disadvantage</code></td>
+<td><code>boolean</code></td>
+<td>Roll twice, take lower</td>
+</tr>
+<tr>
+<td><code>bonus</code></td>
+<td><code>number</code></td>
+<td>Additional bonus</td>
+</tr>
+<tr>
+<td><code>modifier</code></td>
+<td><code>number</code></td>
+<td>Override calculated modifier</td>
+</tr>
+</tbody></table>
+<h3><code>CheckResult</code></h3>
+<p>Result from a skill check.</p>
+<pre><code class="language-typescript">interface CheckResult {
+  success: boolean
+  roll: number
+  rolls: number[]
+  modifier: number
+  bonus: number
+  total: number
+  difficulty: number
+  margin: number
+}
+</code></pre>
+<h3><code>ContestOptions</code></h3>
+<p>Options for contests.</p>
+<pre><code class="language-typescript">interface ContestOptions {
+  dice?: string
+}
+</code></pre>
+<h3><code>ContestResult</code></h3>
+<p>Result from an opposed contest.</p>
+<pre><code class="language-typescript">interface ContestResult {
+  winner: &#39;a&#39; | &#39;b&#39; | &#39;tie&#39;
+  rolls: { a: number; b: number }
+  totals: { a: number; b: number }
+  margin: number
+}
+</code></pre>
+<hr>
+<h2>Template Types</h2>
+<h3><code>StatTemplateConfig</code></h3>
+<p>Configuration for stat templates.</p>
+<pre><code class="language-typescript">interface StatTemplateConfig {
+  stats: Record&lt;string, {
+    default: number
+    min?: number
+    max?: number
+  }&gt;
+  options?: StatBlockOptions
+}
+</code></pre>
+<h3><code>StatTemplate</code></h3>
+<p>Template for creating stat blocks.</p>
+<pre><code class="language-typescript">interface StatTemplate {
+  create(overrides?: Record&lt;string, number&gt;): StatBlock
+}
+</code></pre>
+<hr>
+<h2>Utility Types</h2>
+<h3><code>RollTableEntry&lt;T&gt;</code></h3>
+<p>Entry in a weighted random table.</p>
+<pre><code class="language-typescript">interface RollTableEntry&lt;T&gt; {
+  weight: number
+  value: T
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>weight</code></td>
+<td><code>number</code></td>
+<td>Relative probability</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td><code>T</code></td>
+<td>Value returned if selected</td>
+</tr>
+</tbody></table>
+
+        </article>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
